@@ -3,6 +3,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script type="text/javascript">
+        function resolve() {
+            var bibcodeSel = document.getElementById("bibcode").value;
+            var idx = document.getElementById("linkType");
+            var linkTypeSel = linkType.options[idx.selectedIndex].value;
+            var URL = 'http://localhost:5000/resolver/' + bibcodeSel + '/' + linkTypeSel;
+            document.location.href = URL;
+            return false;
+        }
+    </script>
 </head>
 <body>
     <form name = "testing">
@@ -15,7 +25,7 @@
             <tr>
                 <td>link type&nbsp;</td>
                 <td>
-                    <select id="linkType">
+                    <select name="linkType" id="linkType">
                         <option>ABSTRACT</option>
                         <option>CITATIONS</option>
                         <option>REFERENCES</option>
@@ -44,7 +54,7 @@
             <tr></tr>
             <tr>
                 <td></td>
-                <td><button onclick="return resolve()">Submit</button></td>
+                <td><button onclick="return resolve()">Go</button></td>
             </tr>
             <tr><td><br><br></td></tr>
             <tr>
@@ -77,5 +87,4 @@
             </tr>
         </table>
     </form>
-</body>
 </html>
