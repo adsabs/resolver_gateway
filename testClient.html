@@ -1,0 +1,81 @@
+<!-- to run pytdon -m SimpleHTTPServer -->
+
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <form name = "testing">
+        <br><br><br>
+        <table style:100% border:0>
+            <tr>
+                <td>bibcode&nbsp;</td>
+                <td><input type="text" name="bibcode" id="bibcode"></td>
+            </tr>
+            <tr>
+                <td>link type&nbsp;</td>
+                <td>
+                    <select id="linkType">
+                        <option>ABSTRACT</option>
+                        <option>CITATIONS</option>
+                        <option>REFERENCES</option>
+                        <option>COREADS</option>
+                        <option>TOC</option>
+                        <option>OPENURL</option>
+                        <option>ARTICLE</option>>
+                        <option>PUB_PDF</option>
+                        <option>EPRINT_PDF</option>
+                        <option>AUTHOR_PDF</option>
+                        <option>ADS_PDF</option>
+                        <option>PUB_HTML</option>
+                        <option>EPRINT_HTML</option>
+                        <option>AUTHOR_HTML</option>
+                        <option>ADS_SCAN</option>
+                        <option>DATA</option>>
+                        <option>SIMBAD</option>
+                        <option>NED</option>
+                        <option>INSPIRE</option>
+                        <option>LIBRARYCATALOG</option>
+                        <option>PRESENTATION</option>
+                        <option>ASSOCIATED</option>
+                    </select>
+                </td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td></td>
+                <td><button onclick="return resolve()">Submit</button></td>
+            </tr>
+            <tr><td><br><br></td></tr>
+            <tr>
+                <td>abstract</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2017MNRAS.467.3556B/abstract'" type="button">2017MNRAS.467.3556B/abstract</button></td>
+            </tr>
+            <tr>
+                <td>presentation</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2017MNRAS.467.3556B/presentation'" type="button">2017MNRAS.467.3556B/presentation</button></td>
+            </tr>
+            <tr>
+                <td>article</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2013MNRAS.435.1904M/article'" type="button">2013MNRAS.435.1904M/article</button></td>
+            </tr>
+            <tr>
+                <td>pub_pdf</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2013MNRAS.435.1904M/pub_pdf'" type="button">2013MNRAS.435.1904M/pub_pdf</button></td>
+            </tr>
+            <tr>
+                <td>data</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2013MNRAS.435.1904M/data'" type="button">2013MNRAS.435.1904M/data</button></td>
+            </tr>
+            <tr>
+                <td>ned</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/2013MNRAS.435.1904M/ned'" type="button">2013MNRAS.435.1904M/ned</button></td>
+            </tr>
+            <tr>
+                <td>associated</td>
+                <td><button onclick="location.href='http://localhost:5000/resolver/1971ATsir.615....4D/associated'" type="button">1971ATsir.615....4D/associated</button></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

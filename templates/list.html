@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NASA/ADS Search (Beta Interface)</title>
+</head>
+<body>
+    <div class="header-container">
+        <h3><A HREF="https://ui.adsabs.harvard.edu">NASA/ADS Search</a> (Beta Interface)</h3>
+        <hr>
+    </div>
+    <div class="main-container">
+        {% block content %}
+        <h3>{{ linkType }} links for <b>{{ bibcode }}</b></h3>
+        <dl>
+        {% for link in links %}
+            <dt><a href="{{ link['url'] }}">{{ link['title'] }}</a></dt>
+            {% for data in link['data'] %}
+                <dd><a href="{{ data['url'] }}">{{ data['title'] }}</a></dd>
+                <br>
+            {% endfor %}
+            <br>
+        {% endfor %}
+        </dl>
+        {% endblock %}
+    </div>
+    <div class="footer-container">
+    </div>
+</body>
+</html>
+
