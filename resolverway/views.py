@@ -67,6 +67,7 @@ class LinkRequest():
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
+            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
             self.logger.debug('redirecting to {url}'.format(url=self.url))
             return redirect(self.url, 302)
 
