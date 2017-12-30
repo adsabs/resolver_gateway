@@ -1,25 +1,32 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
-import os
-import inspect
+from werkzeug.serving import run_simple
 
-from flask import Flask
+from flask_restful import Api
+from flask_discoverer import Discoverer
 
-from views import bp
+from adsmutils import ADSFlask
 
-def create_app(config=None):
+from resolverway.views import bp
+
+def create_app(**config):
     """
     Create the application and return it to the user
     :return: flask.Flask application
     """
 
-    app = Flask(__name__, static_folder=None)
+    if config:
+        app = ADSFlask(__name__, static_folder=None, local_config=config)
+    else:
+        app = ADSFlask(__name__, static_folder=None)
+
     app.url_map.strict_slashes = False
+
+    # Register extensions
+    api = Api(app)
+    Discoverer(app)
 
     app.register_blueprint(bp)
     return app
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
+    run_simple('0.0.0.0', 5050, create_app(), use_reloader=False, use_debugger=False)
