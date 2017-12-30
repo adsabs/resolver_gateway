@@ -52,6 +52,7 @@ class LinkRequest():
         # if there is a url we need to log the request and redirect
         if (self.url != None):
             current_app.logger.debug('received to redirect to %s' %(self.url))
+            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
             return redirect(self.url, 302)
 
         params = self.bibcode + '/' + self.link_type
@@ -66,14 +67,15 @@ class LinkRequest():
             action = the_json_response.get('action', '')
             # when action is to redirect, there is only one link
             if (action == 'redirect'):
-                link = the_json_response['link']                
+                link = the_json_response['link']
                 current_app.logger.info('redirecting to %s' %(link))
+                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
                 return redirect(link, 302)
             # when action is to display, there is more than one link
             elif (action == 'display'):
                 links = the_json_response['links']
-                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
                 current_app.logger.debug('rendering template with data %s' %(links))
+                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
                 return render_template('list.html', link_type=self.link_type.title(),
                     links=links, bibcode=self.bibcode)
 
