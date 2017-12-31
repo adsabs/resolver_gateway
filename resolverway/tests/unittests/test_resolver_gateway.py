@@ -27,7 +27,7 @@ class test_resolver(TestCase):
         Tests for wrong link type
         """
         r = self.client.get('/1987gady.book.....B/ERROR')
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 400)
 
 
 if __name__ == '__main__':
