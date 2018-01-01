@@ -8,6 +8,9 @@ from flask_testing import TestCase
 import unittest
 
 import resolverway.app as app
+from resolverway.views import LinkRequest
+
+from stubdata import data
 
 class test_resolver(TestCase):
     def create_app(self):
@@ -29,6 +32,32 @@ class test_resolver(TestCase):
         r = self.client.get('/1987gady.book.....B/ERROR')
         self.assertEqual(r.status_code, 400)
 
+    def test_single_link(self):
+        """
+        Tests single link response
+        :return:
+        """
+        the_json = {"action": "redirect",
+                    "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
+                    "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        self.assertEqual(r.status_code, 302)
+
+    def test_multiple_links(self):
+        """
+        Tests multiple link response
+        :return:
+        """
+        the_json = {"action": "display",
+                    "links": {"count": 4, "link_type": "ESOURCE", "bibcode": "2013MNRAS.435.1904", "records": [
+                        {"url": "http://arxiv.org/abs/1307.6556", "title": "http://arxiv.org/abs/1307.6556"},
+                        {"url": "http://arxiv.org/pdf/1307.6556", "title": "http://arxiv.org/pdf/1307.6556"},
+                        {"url": "http://dx.doi.org/10.1093%2Fmnras%2Fstt1379", "title": "http://dx.doi.org/10.1093%2Fmnras%2Fstt1379"},
+                        {"url": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf", "title": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf"}]},
+                    "service": ""}
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        self.assertEqual(r[0], data.html_data)
+        self.assertEqual(r[1], 200)
 
 if __name__ == '__main__':
   unittest.main()

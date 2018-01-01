@@ -14,21 +14,52 @@ class LinkRequest():
     link_type = ''
     link_sub_type = ''
     url = ''
-    username = ''
+    username = None
+    referrer = None
 
     def __init__(self, bibcode, link_type, url):
         self.bibcode = bibcode
         self.link_type = link_type
         self.url = url
+        self.link_sub_type = ''
+        self.username = None
+        self.referrer = None
 
+
+    def process_resolver_response(self, the_json_response):
+        action = the_json_response.get('action', '')
+
+        # when action is to redirect, there is only one link, so redirect to link
+        if (action == 'redirect'):
+            link = the_json_response.get('link', None)
+            if link:
+                current_app.logger.info('redirecting to %s' %(link))
+                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+                return redirect(link, 302)
+
+        # when action is to display, there are more than one link, so render template to display links
+        if (action == 'display'):
+            links = the_json_response.get('links', None)
+            if links:
+                records = links.get('records', None)
+                if records:
+                    current_app.logger.debug('rendering template with data %s' %(records))
+                    log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+                    return render_template('list.html', link_type=self.link_type.title(),
+                        links=records, bibcode=self.bibcode), 200
+
+        # if we get here there is an error, so display error template
+        current_app.logger.debug('The requested resource does not exist.')
+        return render_template('400.html'), 400
 
     def process_request(self):
         """
 
         :return:
         """
-        self.username = request.cookies.get('username', None)
-        self.referrer = request.referrer
+        if request:
+            self.username = request.cookies.get('username', None)
+            self.referrer = request.referrer
 
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
@@ -51,28 +82,7 @@ class LinkRequest():
 
         # need to make sure the response is json
         if (contentType == 'application/json'):
-            the_json_response = response.json()
-            print 'the_json_response=', the_json_response
-            action = the_json_response.get('action', '')
-
-            # when action is to redirect, there is only one link, so redirect to link
-            if (action == 'redirect'):
-                link = the_json_response['link']
-                current_app.logger.info('redirecting to %s' %(link))
-                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
-                return redirect(link, 302)
-
-            # when action is to display, there are more than one link, so render template to display links
-            if (action == 'display'):
-                links = the_json_response['links']
-                current_app.logger.debug('rendering template with data %s' %(links))
-                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
-                return render_template('list.html', link_type=self.link_type.title(),
-                    links=links, bibcode=self.bibcode)
-
-        # if we get here there is an error, so display error template
-        current_app.logger.debug('The requested resource does not exist.')
-        return render_template('400.html'), 400
+            return self.process_resolver_response(response.json())
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
