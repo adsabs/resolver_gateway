@@ -23,52 +23,59 @@
 * /toc
 * /openurl
 * /esource
-* / pub_pdf
-* / eprint_pdf
-* / author_pdf
-* / ads_pdf
-* / pub_html
-* / eprint_html
-* / author_html
-* / ads_scan
-* / gif
-* / preprint
-* / ejournal
-* / data
-* / ari
-* / simbad
-* / ned
-* / cds
-* / vizier
-* / gcpd
-* / author
-* / pdg
-* / mast
-* / heasarc
-* / ines
-* / ibvs
-* / astroverse
-* / esa
-* / nexsci
-* / pds
-* / aca
-* / iso
-* / eso
-* / cxo
-* / noao
-* / xmm
-* / spitzer
-* / pasa
-* / atnf
-* / koa
-* / herschel
-* / gtc
-* / bicep2
-* / alma
-* / cadc
-* / zenodo
-* / tns
-* / inspire
-* / librarycatalog
-* / presentation
-* / associated
+* /pub_pdf
+* /eprint_pdf
+* /author_pdf
+* /ads_pdf
+* /pub_html
+* /eprint_html
+* /author_html
+* /ads_scan
+* /gif
+* /preprint
+* /ejournal
+* /data
+* /ari
+* /simbad
+* /ned
+* /cds
+* /vizier
+* /gcpd
+* /author
+* /pdg
+* /mast
+* /heasarc
+* /ines
+* /ibvs
+* /astroverse
+* /esa
+* /nexsci
+* /pds
+* /aca
+* /iso
+* /eso
+* /cxo
+* /noao
+* /xmm
+* /spitzer
+* /pasa
+* /atnf
+* /koa
+* /herschel
+* /gtc
+* /bicep2
+* /alma
+* /cadc
+* /zenodo
+* /tns
+* /inspire
+* /librarycatalog
+* /presentation
+* /associated
+
+
+##### For example:
+
+`curl http://localhost:5050/2001ASPC..238..321D`
+
+`curl http://localhost:5050/2012ASPC..461..763H/esource`
