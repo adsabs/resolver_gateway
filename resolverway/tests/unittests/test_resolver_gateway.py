@@ -6,11 +6,13 @@ sys.path.append(PROJECT_HOME)
 
 from flask_testing import TestCase
 import unittest
+import requests
 
 import resolverway.app as app
 from resolverway.views import LinkRequest
 
 from stubdata import data
+
 
 class test_resolver(TestCase):
     def create_app(self):
@@ -25,13 +27,6 @@ class test_resolver(TestCase):
         r= self.client.get('/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT')
         self.assertEqual(r.status_code, 302)
 
-    def test_route_error(self):
-        """
-        Tests for wrong link type
-        """
-        r = self.client.get('/1987gady.book.....B/ERROR')
-        self.assertEqual(r.status_code, 400)
-
     def test_single_link(self):
         """
         Tests single link response
@@ -41,7 +36,7 @@ class test_resolver(TestCase):
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r[1], 302)
 
     def test_multiple_links(self):
         """
@@ -58,6 +53,35 @@ class test_resolver(TestCase):
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
         self.assertEqual(r[0], data.html_data)
         self.assertEqual(r[1], 200)
+
+    def test_action_error(self):
+        """
+        Test if unrecognizable action is returned
+        :return:
+        """
+        the_json = {"action": "redirecterror",
+                    "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
+                    "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        print r
+        self.assertEqual(r[1], 400)
+
+    def test_route_error(self):
+        """
+        Tests for wrong link type
+        """
+        r = self.client.get('/1987gady.book.....B/ERROR')
+        self.assertEqual(r.status_code, 400)
+
+    def test_with_header_and_cookie(self):
+        """
+        Test sending referrer in header and username in cookie
+        :return:
+        """
+        header = {'Referer': 'https://www.google.com/'}
+        self.client.set_cookie('', 'username', 'anonymous@ads')
+        self.client.get('/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT', headers=header)
+        self.assertEqual(0, 0)
 
 if __name__ == '__main__':
   unittest.main()
