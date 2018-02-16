@@ -1,5 +1,5 @@
 
-import adsputils as utils
+import adsmutils as utils
 
 def log_request(bibcode, user, link_type, url, referrer):
     """
@@ -13,7 +13,7 @@ def log_request(bibcode, user, link_type, url, referrer):
     # if logger doesn't exist initialize it
     # logger is a static variable
     if not hasattr(log_request, "logger"):
-        log_request.logger = utils.setup_logging('linkout_clicks')
+        log_request.logger = utils.setup_logging(name_='linkout_clicks', attach_stdout=True)
         # replace the default formatter
         for handler in log_request.logger.handlers:
             formatter = u'%(asctime)s,%(msecs)03d %(levelname)-8s [%(process)d:%(threadName)s:%(filename)s:%(lineno)d] ' \
