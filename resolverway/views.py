@@ -24,6 +24,8 @@ class LinkRequest():
         self.url = url
         self.link_sub_type = ''
         self.username = None
+        self.client_id = None
+        self.access_token = None
         self.referrer = None
 
 
@@ -35,7 +37,7 @@ class LinkRequest():
             link = the_json_response.get('link', None)
             if link:
                 current_app.logger.info('redirecting to %s' %(link))
-                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+                log_request(self.bibcode, self.username, self.link_type, link, self.referrer, self.client_id, self.access_token)
                 return redirect(link, 302), 302
 
         # when action is to display, there are more than one link, so render template to display links
@@ -45,7 +47,7 @@ class LinkRequest():
                 records = links.get('records', None)
                 if records:
                     current_app.logger.debug('rendering template with data %s' %(records))
-                    log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+                    log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
                     return render_template('list.html', link_type=self.link_type.title(),
                         links=records, bibcode=self.bibcode), 200
 
@@ -60,19 +62,21 @@ class LinkRequest():
         """
         if request:
             self.username = request.cookies.get('username', None)
+            self.client_id = request.cookies.get('client_id', None)
+            self.access_token = request.cookies.get('access_token', None)
             self.referrer = request.referrer
 
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
-        if self.username:
-            current_app.logger.info('and username=%s' %(self.username))
+        if self.username or self.client_id or self.access_token:
+            current_app.logger.info('and username=%s, client_id=%s, access_token=%s' %(self.username, self.client_id, self.access_token))
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
             current_app.logger.debug('received to redirect to %s' %(self.url))
-            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
             return redirect(self.url, 302), 302
 
         try:
