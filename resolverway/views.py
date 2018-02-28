@@ -3,6 +3,7 @@ from flask import current_app, request, Blueprint, Response, redirect, render_te
 from flask_discoverer import advertise
 from flask import Response
 import requests
+from requests.exceptions import HTTPError, ConnectionError
 
 from resolverway.log import log_request
 
@@ -13,7 +14,7 @@ class LinkRequest():
     bibcode = ''
     link_type = ''
     link_sub_type = ''
-    url = ''
+    url = None
     username = None
     referrer = None
 
@@ -23,6 +24,8 @@ class LinkRequest():
         self.url = url
         self.link_sub_type = ''
         self.username = None
+        self.client_id = None
+        self.access_token = None
         self.referrer = None
 
 
@@ -34,8 +37,8 @@ class LinkRequest():
             link = the_json_response.get('link', None)
             if link:
                 current_app.logger.info('redirecting to %s' %(link))
-                log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
-                return redirect(link, 302)
+                log_request(self.bibcode, self.username, self.link_type, link, self.referrer, self.client_id, self.access_token)
+                return redirect(link, 302), 302
 
         # when action is to display, there are more than one link, so render template to display links
         if (action == 'display'):
@@ -44,7 +47,7 @@ class LinkRequest():
                 records = links.get('records', None)
                 if records:
                     current_app.logger.debug('rendering template with data %s' %(records))
-                    log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
+                    log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
                     return render_template('list.html', link_type=self.link_type.title(),
                         links=records, bibcode=self.bibcode), 200
 
@@ -59,33 +62,43 @@ class LinkRequest():
         """
         if request:
             self.username = request.cookies.get('username', None)
+            self.client_id = request.cookies.get('client_id', None)
+            self.access_token = request.cookies.get('access_token', None)
             self.referrer = request.referrer
 
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
-        if self.username:
-            current_app.logger.info('and username=%s' %(self.username))
+        if self.username or self.client_id or self.access_token:
+            current_app.logger.info('and username=%s, client_id=%s, access_token=%s' %(self.username, self.client_id, self.access_token))
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
             current_app.logger.debug('received to redirect to %s' %(self.url))
-            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer)
-            return redirect(self.url, 302)
+            log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
+            return redirect(self.url, 302), 302
 
-        # if no url then send request to resolver_service to get link(s)
-        params = self.bibcode + '/' + self.link_type
-        response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'].format(params), headers=request.headers)
-
-        contentType = response.headers.get('content-type')
-
-        # need to make sure the response is json
-        if (contentType == 'application/json'):
-            return self.process_resolver_response(response.json())
+        try:
+            # if no url then send request to resolver_service to get link(s)
+            params = self.bibcode + '/' + self.link_type
+            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=request.headers)
+    
+            contentType = response.headers.get('content-type')
+    
+            # need to make sure the response is json
+            if (contentType == 'application/json'):
+                return self.process_resolver_response(response.json())
+        except HTTPError as e:
+            current_app.logger.error("Http Error: %s" %(e))
+        except ConnectionError as e:
+            current_app.logger.error("Error Connecting: %s" %(e))
+            
+        return render_template('400.html'), 400
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
+@bp.route('/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
 @bp.route('/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
 @bp.route('/<bibcode>/<link_type>/<path:url>', methods=['GET'])
 def resolver(bibcode, link_type, url):

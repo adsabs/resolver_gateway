@@ -1,9 +1,9 @@
-git+https://github.com/adsabs/ADSMicroserviceUtils.git@master
+git+https://github.com/golnazads/ADSMicroserviceUtils.git@master
+git+https://github.com/adsabs/ADSPipelineMsg.git@v1.0.0
 Werkzeug==0.11.15
 Flask==0.12.2
 flask-discoverer==0.0.2
 Flask-RESTful==0.3.6
 Flask-Testing==0.6.2
 requests==2.8.1
-watchtower==0.4.1
-awscli==1.11.162
+

@@ -1,11 +1,7 @@
 
-import watchtower, logging
-import datetime
-import os
+import adsmutils as utils
 
-loggers = {}
-
-def log_request(bibcode, user, link_type, url, referrer):
+def log_request(bibcode, user, link_type, url, referrer, client_id, access_token):
     """
     log to aws
     :param bibcode: 
@@ -14,24 +10,14 @@ def log_request(bibcode, user, link_type, url, referrer):
     :param url: 
     :param referrer: 
     """
-    global loggers
-    global server, host
-    logger = logging.getLogger(__name__)
-    if not len(logger.handlers):
-        logging.basicConfig(level=logging.INFO)
-        server = str(os.uname()[1])
-        host = str(os.getpid())
-        handler = watchtower.CloudWatchLogHandler(stream_name=server + "-" + host + "-app",
-                                                  log_group="production-resolver-app")
-        logger.addHandler(handler)
-
-    logger.info('"{dateUTC}" "{server}" "{host}" "{user}" "{link}" "{bibcode}" "{service}" "{referer}"'.format(
-        dateUTC=datetime.datetime.utcnow().isoformat(),
-        server=server,
-        host=host,
-        user=user,
-        link=link_type,
-        bibcode=bibcode,
-        service=url,
-        referer=referrer))
-
+    # if logger doesn't exist initialize it
+    # logger is a static variable
+    if not hasattr(log_request, "logger"):
+        log_request.logger = utils.setup_logging(name_='linkout_clicks', attach_stdout=True)
+        # replace the default formatter
+        for handler in log_request.logger.handlers:
+            formatter = u'%(asctime)s, %(process)d, %(user)s, %(link)s, %(bibcode)s, %(service)s, '\
+                        u'%(referer)s, %(client_id)s %(access_token)s'
+            handler.formatter = utils.get_json_formatter(logfmt=formatter)
+    message = {'user':user, 'link':link_type, 'bibcode':bibcode, 'service':url, 'referer':referrer, 'client_id':client_id, 'access_token':access_token}
+    log_request.logger.info(message)
