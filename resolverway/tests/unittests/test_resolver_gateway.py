@@ -24,7 +24,7 @@ class test_resolver(TestCase):
         Tests for the existence of a /resolver route, and that it returns
         properly formatted JSON data when the URL is supplied
         """
-        r= self.client.get('/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT')
+        r= self.client.get('/resolver/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT')
         self.assertEqual(r.status_code, 302)
 
     def test_single_link(self):
@@ -70,7 +70,7 @@ class test_resolver(TestCase):
         """
         Tests for wrong link type
         """
-        r = self.client.get('/1987gady.book.....B/ERROR')
+        r = self.client.get('/resolver/1987gady.book.....B/ERROR')
         self.assertEqual(r.status_code, 400)
 
     def test_with_header_and_cookie(self):

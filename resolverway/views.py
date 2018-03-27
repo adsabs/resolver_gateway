@@ -98,9 +98,9 @@ class LinkRequest():
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
-@bp.route('/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
-@bp.route('/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
-@bp.route('/<bibcode>/<link_type>/<path:url>', methods=['GET'])
+@bp.route('/resolver/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
+@bp.route('/resolver/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
+@bp.route('/resolver/<bibcode>/<link_type>/<path:url>', methods=['GET'])
 def resolver(bibcode, link_type, url):
     """
 
