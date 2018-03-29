@@ -82,7 +82,8 @@ class LinkRequest():
         try:
             # if no url then send request to resolver_service to get link(s)
             params = self.bibcode + '/' + self.link_type
-            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=request.headers)
+            headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_TOKEN']}
+            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=headers)
     
             contentType = response.headers.get('content-type')
     
