@@ -82,7 +82,8 @@ class LinkRequest():
         try:
             # if no url then send request to resolver_service to get link(s)
             params = self.bibcode + '/' + self.link_type
-            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=request.headers)
+            headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_TOKEN']}
+            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=headers)
     
             contentType = response.headers.get('content-type')
     
@@ -98,9 +99,9 @@ class LinkRequest():
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
-@bp.route('/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
-@bp.route('/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
-@bp.route('/<bibcode>/<link_type>/<path:url>', methods=['GET'])
+@bp.route('/resolver/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
+@bp.route('/resolver/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
+@bp.route('/resolver/<bibcode>/<link_type>/<path:url>', methods=['GET'])
 def resolver(bibcode, link_type, url):
     """
 
