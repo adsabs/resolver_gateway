@@ -32,20 +32,20 @@ On your desktop run:
 
 #### Make a GET request with a bibcode to return all links associated with that bibcode:
 
-    curl https://ui.adsabs.harvard.edu/resolver/<bibcode>
+    curl -X GET https://ui.adsabs.harvard.edu/resolver/<bibcode>
 
 For example to return *all* links associated with 2017arXiv170909566R, you would do   
 
-    curl https://ui.adsabs.harvard.edu/resolver/2017arXiv170909566R
+    curl -X GET https://ui.adsabs.harvard.edu/resolver/2017arXiv170909566R
 
 
 #### Make a GET request with a bibcode and link type to return all links of the type specified associated for that bibcode:
 
-    curl https://ui.adsabs.harvard.edu/resolver/<bibcode>/<link_type>
+    curl -X GET https://ui.adsabs.harvard.edu/resolver/<bibcode>/<link_type>
 
 For example to return links for *all*  full text sources, you would do
 
-    curl https://ui.adsabs.harvard.edu/resolver/2013MNRAS.435.1904M/esource
+    curl -X GET https://ui.adsabs.harvard.edu/resolver/2013MNRAS.435.1904M/esource
 
 #### Available Link Types:
 
