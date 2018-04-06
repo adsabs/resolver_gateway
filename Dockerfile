@@ -1,12 +1,7 @@
 FROM adsabs/base-microimage
 
-# add scripts/tags
-ADD repository /repository
-ADD release /release
-
+ADD ./ /app
 WORKDIR /app
-RUN /bin/bash -c "git clone `cat /repository` /app"
-RUN git pull && git reset --hard `cat /release`
 
 # Provision the project
 RUN pip install -r requirements.txt
