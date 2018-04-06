@@ -28,6 +28,10 @@ class LinkRequest():
         self.access_token = None
         self.referrer = None
 
+    def redirect(self, link):
+        response = redirect(link, 302)
+        response.autocorrect_location_header = False
+        return response, 302
 
     def process_resolver_response(self, the_json_response):
         action = the_json_response.get('action', '')
@@ -38,7 +42,7 @@ class LinkRequest():
             if link:
                 current_app.logger.info('redirecting to %s' %(link))
                 log_request(self.bibcode, self.username, self.link_type, link, self.referrer, self.client_id, self.access_token)
-                return redirect(link, 302), 302
+                return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
         if (action == 'display'):
@@ -48,7 +52,7 @@ class LinkRequest():
                 if records:
                     current_app.logger.debug('rendering template with data %s' %(records))
                     log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
-                    return render_template('list.html', link_type=self.link_type.title(),
+                    return render_template('list.html', url="", link_type=self.link_type.title(),
                         links=records, bibcode=self.bibcode), 200
 
         # if we get here there is an error, so display error template
@@ -77,7 +81,7 @@ class LinkRequest():
         if (self.url != None):
             current_app.logger.debug('received to redirect to %s' %(self.url))
             log_request(self.bibcode, self.username, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
-            return redirect(self.url, 302), 302
+            return self.redirect(self.url)
 
         try:
             # if no url then send request to resolver_service to get link(s)
