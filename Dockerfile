@@ -1,4 +1,4 @@
-FROM adsabs/base-microimage:v0.0.4
+FROM adsabs/base-microimage
 
 # add scripts/tags
 ADD repository /repository
