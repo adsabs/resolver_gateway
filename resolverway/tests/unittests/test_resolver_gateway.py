@@ -7,6 +7,7 @@ sys.path.append(PROJECT_HOME)
 from flask_testing import TestCase
 import unittest
 import requests
+import httpretty
 
 import resolverway.app as app
 from resolverway.views import LinkRequest
@@ -16,8 +17,10 @@ from stubdata import data
 
 class test_resolver(TestCase):
     def create_app(self):
-        self.current_app = app.create_app()
-        return self.current_app
+        a = app.create_app(**{
+            'TESTING': True,
+        })
+        return a
 
     def test_route(self):
         """
@@ -73,15 +76,22 @@ class test_resolver(TestCase):
         r = self.client.get('/resolver/1987gady.book.....B/ERROR')
         self.assertEqual(r.status_code, 400)
 
+    @httpretty.activate
     def test_with_header_and_cookie(self):
         """
         Test sending referrer in header and username in cookie
         :return:
         """
+        # TODO: This is not working yet
+        httpretty.register_uri(
+            httpretty.GET, self.app.config['ACCOUNT_TOKEN_SERVICE_URL'],
+            content_type='application/json',
+            body='{"username": "user@cfa.harvard.edu", "scopes": ["api", "user", "store-query", "execute-query", "store-preferences"], "access_token": "34a3ZR71kdiCVkPUxwMeYGnHEx5mVFJuwPvI5O3s", "token_type": "Bearer", "anonymous": False, "expire_in": "2500-01-01T00:00:00", "refresh_token": "zzH3ZAIfcmjdyXdtpesyXVuxcdInarHOrqnHm349", "user_id": 1, "client_id": "yay"}')
+
         header = {'Referer': 'https://www.google.com/'}
-        self.client.set_cookie('', 'username', 'anonymous@ads')
-        self.client.get('/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT', headers=header)
-        self.assertEqual(0, 0)
+        self.client.set_cookie('', 'session', 'test')
+        r = self.client.get('/resolver/1987gady.book.....B/ABSTRACT', headers=header)
+        self.assertEqual(0, 0) # This should be a valid assert
 
 if __name__ == '__main__':
   unittest.main()

@@ -17,6 +17,7 @@ This microservice captures and logs information such as search, abstract view et
     $ pip install -r requirements.txt
     $ pip install -r dev-requirements.txt
     $ vim local_config.py # edit, edit
+    $ docker run --name some-redis -d -p 6379:6379 redis
 
     
     

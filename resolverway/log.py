@@ -1,14 +1,15 @@
 
 import adsmutils as utils
 
-def log_request(bibcode, user, link_type, url, referrer, client_id, access_token):
+def log_request(bibcode, user, user_id, link_type, url, referrer, client_id, access_token):
     """
     log to aws
-    :param bibcode: 
-    :param user: 
-    :param link_type: 
-    :param url: 
-    :param referrer: 
+    :param bibcode:
+    :param user:
+    :param user_id:
+    :param link_type:
+    :param url:
+    :param referrer:
     """
     # if logger doesn't exist initialize it
     # logger is a static variable
@@ -17,7 +18,7 @@ def log_request(bibcode, user, link_type, url, referrer, client_id, access_token
         # replace the default formatter
         for handler in log_request.logger.handlers:
             formatter = u'%(asctime)s, %(process)d, %(linkout_clicks)s, ' \
-                        u'%(user)s, %(link)s, %(bibcode)s, %(service)s, %(referer)s, %(client_id)s %(access_token)s'
+                        u'%(user)s, %(user_id)s, %(link)s, %(bibcode)s, %(service)s, %(referer)s, %(client_id)s %(access_token)s'
             handler.formatter = utils.get_json_formatter(logfmt=formatter)
-    message = {'linkout_clicks':'resolver_linkout_click', 'user':user, 'link':link_type, 'bibcode':bibcode, 'service':url, 'referer':referrer, 'client_id':client_id, 'access_token':access_token}
+    message = {'linkout_clicks':'resolver_linkout_click', 'user':user, 'user_id':user_id, 'link':link_type, 'bibcode':bibcode, 'service':url, 'referer':referrer, 'client_id':client_id, 'access_token':access_token}
     log_request.logger.info(message)

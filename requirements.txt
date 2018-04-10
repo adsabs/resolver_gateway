@@ -6,4 +6,6 @@ flask-discoverer==0.0.2
 Flask-RESTful==0.3.6
 Flask-Testing==0.6.2
 requests==2.8.1
-
+redis==2.10.6
+flask-redis==0.3.0
+mockredispy==2.9.3
