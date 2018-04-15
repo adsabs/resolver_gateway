@@ -18,10 +18,11 @@ class LinkRequest():
     username = None
     referrer = None
 
-    def __init__(self, bibcode, link_type, url):
+    def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
         self.link_type = link_type
         self.url = url
+        self.id = id
         self.link_sub_type = ''
         self.username = None
         self.client_id = None
@@ -85,7 +86,10 @@ class LinkRequest():
 
         try:
             # if no url then send request to resolver_service to get link(s)
-            params = self.bibcode + '/' + self.link_type
+            if (self.id != None):
+                params = self.bibcode + '/' + self.link_type + ':' + self.id
+            else:
+                params = self.bibcode + '/' + self.link_type
             headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_TOKEN']}
             response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=headers)
     
@@ -103,9 +107,9 @@ class LinkRequest():
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
-@bp.route('/resolver/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
-@bp.route('/resolver/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
-@bp.route('/resolver/<bibcode>/<link_type>/<path:url>', methods=['GET'])
+@bp.route('/link_gateway/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
+@bp.route('/link_gateway/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
+@bp.route('/link_gateway/<bibcode>/<link_type>/<path:url>', methods=['GET'])
 def resolver(bibcode, link_type, url):
     """
 
@@ -114,7 +118,19 @@ def resolver(bibcode, link_type, url):
     :param url:
     :return:
     """
-    return LinkRequest(bibcode, link_type.upper(), url).process_request()
+    return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
+
+@advertise(scopes=[], rate_limit=[1000, 3600 * 24])
+@bp.route('/link_gateway/<bibcode>/<link_type>:<path:id>', methods=['GET'])
+def resolver_id(bibcode, link_type, id):
+    """
+    endpoint for identification link types: doi and arXiv
+    :param bibcode:
+    :param link_type:
+    :param id:
+    :return:
+    """
+    return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
 
 
