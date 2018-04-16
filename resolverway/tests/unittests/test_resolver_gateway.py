@@ -61,8 +61,8 @@ class test_resolver(TestCase):
         """
         the_json = {"action": "redirect",
                     "link": "http://dx.doi.org/10.1088/2041-8205/713/2/L10",
-                    "service": "https://ui.adsabs.harvard.edu/#abs/2010ApJ...713L.103B/DOI:10.1088,2041-8205,713,2,L103"}
-        r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088_2041-8205_713_2_L10').process_resolver_response(the_json)
+                    "service": "https://ui.adsabs.harvard.edu/#abs/2010ApJ...713L.103B/DOI:10.1088/2041-8205/713/2/L103"}
+        r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088,2041-8205,713,2,L10').process_resolver_response(the_json)
         self.assertEqual(r[1], 302)
 
         the_json = {"action": "redirect",

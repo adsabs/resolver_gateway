@@ -41,6 +41,10 @@ class LinkRequest():
         if (action == 'redirect'):
             link = the_json_response.get('link', None)
             if link:
+                # gunicorn does not like / so it is passed as underscore and returned back to / here
+                if self.link_type == 'DOI':
+                    link = link.replace(',', '/')
+
                 current_app.logger.info('redirecting to %s' %(link))
                 log_request(self.bibcode, self.username, self.link_type, link, self.referrer, self.client_id, self.access_token)
                 return self.redirect(link)
@@ -131,9 +135,6 @@ def resolver_id(bibcode, link_type, id):
     :param id:
     :return:
     """
-    # gunicorn does not like / so it is passed as underscore and returned back to / here
-    if link_type.lower() == 'doi':
-        id = id.replace(',', '/')
     return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
 
 
