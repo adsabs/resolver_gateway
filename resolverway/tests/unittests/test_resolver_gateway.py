@@ -54,6 +54,23 @@ class test_resolver(TestCase):
         self.assertEqual(r[0], data.html_data)
         self.assertEqual(r[1], 200)
 
+    def test_identification_link(self):
+        """
+        Tests single link response for identification link types
+        :return:
+        """
+        the_json = {"action": "redirect",
+                    "link": "http://dx.doi.org/10.1088/2041-8205/713/2/L10",
+                    "service": "https://ui.adsabs.harvard.edu/#abs/2010ApJ...713L.103B/DOI:10.1088/2041-8205/713/2/L103"}
+        r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088_2041-8205_713_2_L10').process_resolver_response(the_json)
+        self.assertEqual(r[1], 302)
+
+        the_json = {"action": "redirect",
+                    "link": "http://arxiv.org/abs/1803.03598",
+                    "service": "https://ui.adsabs.harvard.edu/#abs/2018arXiv180303598K/ARXIV:1803.03598"}
+        r = LinkRequest('2018arXiv180303598K', 'ARXIV', '1803.03598').process_resolver_response(the_json)
+        self.assertEqual(r[1], 302)
+
     def test_action_error(self):
         """
         Test if unrecognizable action is returned
