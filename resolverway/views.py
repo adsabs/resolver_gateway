@@ -133,7 +133,7 @@ def resolver_id(bibcode, link_type, id):
     """
     # gunicorn does not like / so it is passed as underscore and returned back to / here
     if link_type.lower() == 'doi':
-        id = id.replace('_', '/')
+        id = id.replace(',', '/')
     return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
 
 
