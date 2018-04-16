@@ -32,20 +32,20 @@ On your desktop run:
 
 #### Make a GET request with a bibcode to return all links associated with that bibcode:
 
-    curl -X GET https://ui.adsabs.harvard.edu/resolver/<bibcode>
+    curl -X GET https://ui.adsabs.harvard.edu/link_gateway/<bibcode>
 
 For example to return *all* links associated with 2017arXiv170909566R, you would do   
 
-    curl -X GET https://ui.adsabs.harvard.edu/resolver/2017arXiv170909566R
+    curl -X GET https://ui.adsabs.harvard.edu/link_gateway/2017arXiv170909566R
 
 
 #### Make a GET request with a bibcode and link type to return all links of the type specified associated for that bibcode:
 
-    curl -X GET https://ui.adsabs.harvard.edu/resolver/<bibcode>/<link_type>
+    curl -X GET https://ui.adsabs.harvard.edu/link_gateway/<bibcode>/<link_type>
 
 For example to return links for *all*  full text sources, you would do
 
-    curl -X GET https://ui.adsabs.harvard.edu/resolver/2013MNRAS.435.1904M/esource
+    curl -X GET https://ui.adsabs.harvard.edu/link_gateway/2013MNRAS.435.1904M/esource
 
 #### Available Link Types:
 
@@ -109,6 +109,17 @@ For example to return links for *all*  full text sources, you would do
 * **librarycatalog**
 * **presentation** *Multimedia Presentation*
 * **associated** *Associated Articles*
+
+#### Identification Link Types:
+
+Please note that these links types' endpoints differ slightly from the rest of link types:
+
+    curl -X GET https://api.adsabs.harvard.edu/link_gateway/<bibcode>/<Identification Link Type>:<id>
+
+where Identification Link Types are: `doi` or `arXiv` and `id` is their respective identification. For example
+
+    curl -X GET https://dev.adsabs.harvard.edu/link_gateway/2010ApJ...713L.103B/doi:10.1088/2041-8205/713/2/L103
+    curl -X GET https://dev.adsabs.harvard.edu/link_gateway/2018arXiv180303598K/arXiv:1803.03598
 
 
 ## Maintainer(s)
