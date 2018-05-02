@@ -72,23 +72,21 @@ class LinkRequest():
         """
         if request:
             self.referrer = request.referrer
-            if 'session' in request.cookies.keys():
-                session = request.cookies['session']
-                try:
-                    r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'] ,
-                                     headers={'cookie' : 'session=' + session})
-                    if r.status_code == 200:
-                        account = r.json()
-                        if account:
-                            self.user_id = account['user_id']
-                            self.client_id = account['client_id']
-                            self.access_token = account['access_token']
-                            return True
-                except HTTPError as e:
-                    current_app.logger.error("Http Error: %s" % (e))
-                except ConnectionError as e:
-                    current_app.logger.error("Error Connecting: %s" % (e))
+            try:
+                r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], cookies=request.cookies)
+                if r.status_code == 200:
+                    account = r.json()
+                    if account:
+                        self.user_id = account['user_id']
+                        self.client_id = account['client_id']
+                        self.access_token = account['access_token']
+                        return True
+            except HTTPError as e:
+                current_app.logger.error("Http Error: %s" % (e))
+            except ConnectionError as e:
+                current_app.logger.error("Error Connecting: %s" % (e))
         return False
+
 
     def process_request(self):
         """
