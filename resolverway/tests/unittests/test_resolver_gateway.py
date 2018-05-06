@@ -6,7 +6,8 @@ sys.path.append(PROJECT_HOME)
 
 from flask_testing import TestCase
 import unittest
-import requests
+import Cookie
+
 
 import resolverway.app as app
 from resolverway.views import LinkRequest
@@ -80,7 +81,6 @@ class test_resolver(TestCase):
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
-        print r
         self.assertEqual(r[1], 400)
 
     def test_route_error(self):
@@ -90,15 +90,50 @@ class test_resolver(TestCase):
         r = self.client.get('/link_gateway/1987gady.book.....B/ERROR')
         self.assertEqual(r.status_code, 400)
 
-    def test_with_header_and_cookie(self):
+    def test_with_header_info(self):
         """
-        Test sending referrer in header and username in cookie
+        Test sending referrer in header and getting user info
         :return:
         """
         header = {'Referer': 'https://www.google.com/'}
-        self.client.set_cookie('', 'username', 'anonymous@ads')
-        self.client.get('/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT', headers=header)
-        self.assertEqual(0, 0)
+        r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT', headers=header)
+        self.assertEqual(r.status_code, 302)
+
+    def test_redis_available(self):
+        """
+        Test that redis available
+        :return:
+        """
+        # Test that redis is available
+        self.assertNotEqual(self.current_app.extensions['redis'], None)
+
+    def test_redis_put_get(self):
+        """
+        add an entry to redis, pass the same session id and verify that it was fetched
+        next do not pass session id and verifty that it was not fetched
+        :return:
+        """
+        # add an entry
+        account1 = {"username": "anonymous@ads", "user_id": 1, "anonymous": True, "access_token": "accessTokenTestExample1", "client_name": "BB client", "session_id": "sessionIDTestExample1", "client_id": "clientIDTestExample1"}
+        self.current_app.extensions['redis'].set('key1', account1)
+
+        # verify that when the same session id is passed as cookie, the entry was fetched from redis
+        header = {'cookie': 'session=key1'}
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
+        self.assertEqual(r.headers['session_id'], 'sessionIDTestExample1')
+
+        # verify that when no cookie is send, session_id is None
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT')
+        self.assertEqual(r.headers['session_id'], 'None')
+
+    def test_adsws_call(self):
+        """
+
+        :return:
+        """
+        account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws('')
+        self.assertEqual(account, None)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -4,4 +4,8 @@ RESOLVER_SERVICE_URL = 'https://dev.adsabs.harvard.edu/v1/resolver/%s'
 RESOLVER_SERVICE_ADSWS_API_TOKEN = 'this is a secret api token!'
 
 # Service URL to translate session into user account information
-RESOLVER_SERVICE_ACCOUNT_TOKEN_URL = 'https://qa.adsabs.harvard.edu/v1/accounts/token'
+RESOLVER_SERVICE_ACCOUNT_TOKEN_URL = 'https://dev.adsabs.harvard.edu/v1/accounts/info'
+RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN = 'this is a secret api token!'
+
+# For caching
+REDIS_URL = "redis://localhost:6379/0"

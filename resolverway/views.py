@@ -1,13 +1,16 @@
 
 from flask import current_app, request, Blueprint, Response, redirect, render_template
+from flask_redis import FlaskRedis
 from flask_discoverer import advertise
-from flask import Response
 import requests
 from requests.exceptions import HTTPError, ConnectionError
+import ast
 
 from resolverway.log import log_request
 
 bp = Blueprint('resolver_gateway', __name__)
+redis_db = FlaskRedis()
+
 
 class LinkRequest():
 
@@ -32,6 +35,7 @@ class LinkRequest():
     def redirect(self, link):
         response = redirect(link, 302)
         response.autocorrect_location_header = False
+        response.headers['session_id'] = self.user_id
         return response, 302
 
     def process_resolver_response(self, the_json_response):
@@ -41,9 +45,8 @@ class LinkRequest():
         if (action == 'redirect'):
             link = the_json_response.get('link', None)
             if link:
-                # gunicorn does not like / so it is passed as underscore and returned back to / here
-                if self.link_type == 'DOI':
-                    link = link.replace(',', '/')
+                # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI and associated links)
+                link = link.replace(',', '/')
 
                 current_app.logger.info('redirecting to %s' %(link))
                 log_request(self.bibcode, self.user_id, self.link_type, link, self.referrer, self.client_id, self.access_token)
@@ -64,6 +67,25 @@ class LinkRequest():
         current_app.logger.debug('The requested resource does not exist.')
         return render_template('400.html'), 400
 
+    def get_user_info_from_adsws(self, cookies):
+        """
+
+        :param request:
+        :return:
+        """
+        try:
+            current_app.logger.info('getting user info from adsws with session=%s' % (cookies))
+            headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
+            r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], headers=headers,
+                             cookies=cookies)
+            if r.status_code == 200:
+                return r.json()
+        except HTTPError as e:
+            current_app.logger.error("Http Error: %s" % (e))
+        except ConnectionError as e:
+            current_app.logger.error("Error Connecting: %s" % (e))
+        return None
+
     def set_user_info(self, request):
         """
 
@@ -72,19 +94,24 @@ class LinkRequest():
         """
         if request:
             self.referrer = request.referrer
-            try:
-                r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], cookies=request.cookies)
-                if r.status_code == 200:
-                    account = r.json()
-                    if account:
-                        self.user_id = account['user_id']
-                        self.client_id = account['client_id']
-                        self.access_token = account['access_token']
-                        return True
-            except HTTPError as e:
-                current_app.logger.error("Http Error: %s" % (e))
-            except ConnectionError as e:
-                current_app.logger.error("Error Connecting: %s" % (e))
+        session = request.cookies.get('session', None)
+        if session:
+            account = redis_db.get(session)
+            if account:
+                current_app.logger.info('getting user info from cache with session=%s' % (session))
+                # account is saved to cache as string, turned it back to dict
+                account = ast.literal_eval(account)
+            else:
+                account = self.get_user_info_from_adsws(request.cookies)
+                if account:
+                    # save it to cache
+                    redis_db.set(session, account)
+                else:
+                    return False
+            self.user_id = account['session_id']
+            self.client_id = account['client_id']
+            self.access_token = account['access_token']
+            return True
         return False
 
 
@@ -93,17 +120,18 @@ class LinkRequest():
 
         :return:
         """
-
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
         if self.set_user_info(request):
-            current_app.logger.info('and user_id=%s, client_id=%s, access_token=%s' %(self.user_id, self.client_id, self.access_token))
+            current_app.logger.info('click logging info: user_id=%s, client_id=%s, access_token=%s' %(self.user_id, self.client_id, self.access_token))
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
+            # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI and associated links)
+            self.url = self.url.replace(',', '/')
             current_app.logger.debug('received to redirect to %s' %(self.url))
             log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
             return self.redirect(self.url)
@@ -156,5 +184,3 @@ def resolver_id(bibcode, link_type, id):
     :return:
     """
     return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
-
-
