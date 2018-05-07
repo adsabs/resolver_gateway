@@ -131,7 +131,7 @@ class test_resolver(TestCase):
 
         :return:
         """
-        account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws('')
+        account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws(None)
         self.assertEqual(account, None)
 
 

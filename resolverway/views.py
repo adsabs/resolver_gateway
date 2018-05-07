@@ -75,17 +75,18 @@ class LinkRequest():
         :param request:
         :return:
         """
-        try:
-            current_app.logger.info('getting user info from adsws with session=%s' % (cookies))
-            headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
-            r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], headers=headers,
-                             cookies=cookies)
-            if r.status_code == 200:
-                return r.json()
-        except HTTPError as e:
-            current_app.logger.error("Http Error: %s" % (e))
-        except ConnectionError as e:
-            current_app.logger.error("Error Connecting: %s" % (e))
+        if cookies:
+            try:
+                current_app.logger.info('getting user info from adsws with session=%s' % (cookies))
+                headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
+                r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], headers=headers,
+                                 cookies=cookies)
+                if r.status_code == 200:
+                    return r.json()
+            except HTTPError as e:
+                current_app.logger.error("Http Error: %s" % (e))
+            except ConnectionError as e:
+                current_app.logger.error("Error Connecting: %s" % (e))
         return None
 
     def set_user_info(self, request):
