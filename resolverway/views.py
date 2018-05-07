@@ -35,17 +35,19 @@ class LinkRequest():
     def redirect(self, link):
         response = redirect(link, 302)
         response.autocorrect_location_header = False
-        response.headers['session_id'] = self.user_id
+        response.headers['user_id'] = self.user_id
         return response, 302
 
     def process_resolver_response(self, the_json_response):
+        current_app.logger.info('from service got: %s'%(the_json_response))
+
         action = the_json_response.get('action', '')
 
         # when action is to redirect, there is only one link, so redirect to link
         if (action == 'redirect'):
             link = the_json_response.get('link', None)
             if link:
-                # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI and associated links)
+                # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI links)
                 link = link.replace(',', '/')
 
                 current_app.logger.info('redirecting to %s' %(link))
@@ -108,7 +110,7 @@ class LinkRequest():
                     redis_db.set(session, account)
                 else:
                     return False
-            self.user_id = account['session_id']
+            self.user_id = account['user_id']
             self.client_id = account['client_id']
             self.access_token = account['access_token']
             return True
@@ -124,14 +126,13 @@ class LinkRequest():
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
         if self.set_user_info(request):
-            current_app.logger.info('click logging info: user_id=%s, client_id=%s, access_token=%s' %(self.user_id, self.client_id, self.access_token))
+            current_app.logger.info('click logging info: user_id=%s, client_id=%s, access_token=%s'
+                                    %(self.user_id, self.client_id, self.access_token))
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
-            # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI and associated links)
-            self.url = self.url.replace(',', '/')
             current_app.logger.debug('received to redirect to %s' %(self.url))
             log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
             return self.redirect(self.url)

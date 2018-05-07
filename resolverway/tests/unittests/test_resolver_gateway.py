@@ -120,11 +120,11 @@ class test_resolver(TestCase):
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
         header = {'cookie': 'session=key1'}
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
-        self.assertEqual(r.headers['session_id'], 'sessionIDTestExample1')
+        self.assertEqual(r.headers['user_id'], '1')
 
         # verify that when no cookie is send, session_id is None
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT')
-        self.assertEqual(r.headers['session_id'], 'None')
+        self.assertEqual(r.headers['user_id'], 'None')
 
     def test_adsws_call(self):
         """
