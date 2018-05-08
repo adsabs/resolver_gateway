@@ -5,6 +5,7 @@ from flask_discoverer import advertise
 import requests
 from requests.exceptions import HTTPError, ConnectionError
 import ast
+import urllib
 
 from resolverway.log import log_request
 
@@ -47,9 +48,7 @@ class LinkRequest():
         if (action == 'redirect'):
             link = the_json_response.get('link', None)
             if link:
-                # gunicorn does not like / so it is passed as , and returned back to / here if need to (i.e. for DOI links)
-                link = link.replace(',', '/')
-
+                link = urllib.unquote(link)
                 current_app.logger.info('redirecting to %s' %(link))
                 log_request(self.bibcode, self.user_id, self.link_type, link, self.referrer, self.client_id, self.access_token)
                 return self.redirect(link)
