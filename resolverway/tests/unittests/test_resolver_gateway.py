@@ -114,11 +114,11 @@ class test_resolver(TestCase):
         :return:
         """
         # add an entry
-        account1 = {"username": "anonymous@ads", "user_id": 1, "anonymous": True, "access_token": "accessTokenTestExample1", "client_name": "BB client", "session_id": "sessionIDTestExample1", "client_id": "clientIDTestExample1"}
+        account1 = {"username": "anonymous@ads", "user_id": 1, "anonymous": True, "client_name": "BB client", "session_id": "sessionIDTestExample1", "client_id": "clientIDTestExample1"}
         self.current_app.extensions['redis'].set('key1', account1)
 
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
-        header = {'cookie': 'session=key1'}
+        header = {'cookie': 'session=key1', 'x-real-ip': '0.0.0.0'}
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
         self.assertEqual(r.headers['user_id'], '1')
 
