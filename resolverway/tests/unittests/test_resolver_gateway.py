@@ -114,13 +114,13 @@ class test_resolver(TestCase):
         :return:
         """
         # add an entry
-        account1 = {"username": "anonymous@ads", "user_id": 1, "anonymous": True, "client_name": "BB client", "session_id": "sessionIDTestExample1", "client_id": "clientIDTestExample1"}
+        account1 = {"source": "session:client_id", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
         self.current_app.extensions['redis'].set('key1', account1)
 
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
         header = {'cookie': 'session=key1', 'x-real-ip': '0.0.0.0'}
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
-        self.assertEqual(r.headers['user_id'], '1')
+        self.assertEqual(r.headers['user_id'], 'ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c')
 
         # verify that when no cookie is send, session_id is None
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT')
