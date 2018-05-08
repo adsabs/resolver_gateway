@@ -76,12 +76,14 @@ class LinkRequest():
         """
         if session:
             try:
-                current_app.logger.info('getting user info from adsws with session=%s' % (session))
                 url = current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'] + '/' + session
+                current_app.logger.info('getting user info from adsws %s=' % (url))
                 headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
                 r = requests.get(url=url, headers=headers)
                 if r.status_code == 200:
+                    current_app.logger.info('got results=%s' % (r.json()))
                     return r.json()
+                current_app.logger.info('got status=%s' % (r.status_code))
             except HTTPError as e:
                 current_app.logger.error("Http Error: %s" % (e))
             except ConnectionError as e:
