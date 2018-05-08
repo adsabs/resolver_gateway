@@ -1,7 +1,7 @@
 
 import adsmutils as utils
 
-def log_request(bibcode, user, link_type, url, referrer, client_id, access_token):
+def log_request(bibcode, user, link_type, url, referrer, client_id, real_ip):
     """
     log to aws
     :param bibcode: 
@@ -17,7 +17,8 @@ def log_request(bibcode, user, link_type, url, referrer, client_id, access_token
         # replace the default formatter
         for handler in log_request.logger.handlers:
             formatter = u'%(asctime)s, %(process)d, %(linkout_clicks)s, ' \
-                        u'%(user)s, %(link)s, %(bibcode)s, %(service)s, %(referer)s, %(client_id)s %(access_token)s'
+                        u'%(user)s, %(link)s, %(bibcode)s, %(service)s, %(referer)s, %(client_id)s %(real_ip)s'
             handler.formatter = utils.get_json_formatter(logfmt=formatter)
-    message = {'linkout_clicks':'resolver_linkout_click', 'user':user, 'link':link_type, 'bibcode':bibcode, 'service':url, 'referer':referrer, 'client_id':client_id, 'access_token':access_token}
+    message = {'linkout_clicks':'resolver_linkout_click', 'user':user, 'link':link_type, 'bibcode':bibcode,
+               'service':url, 'referer':referrer, 'client_id':client_id, 'real_ip':real_ip}
     log_request.logger.info(message)

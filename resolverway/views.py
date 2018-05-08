@@ -30,8 +30,8 @@ class LinkRequest():
         self.link_sub_type = ''
         self.user_id = None
         self.client_id = None
-        self.access_token = None
         self.referrer = None
+        self.real_ip = None
 
     def redirect(self, link):
         response = redirect(link, 302)
@@ -50,7 +50,7 @@ class LinkRequest():
             if link:
                 link = urllib.unquote(link)
                 current_app.logger.info('redirecting to %s' %(link))
-                log_request(self.bibcode, self.user_id, self.link_type, link, self.referrer, self.client_id, self.access_token)
+                log_request(self.bibcode, self.user_id, self.link_type, link, self.referrer, self.client_id, self.real_ip)
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
@@ -60,7 +60,7 @@ class LinkRequest():
                 records = links.get('records', None)
                 if records:
                     current_app.logger.debug('rendering template with data %s' %(records))
-                    log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
+                    log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
                     return render_template('list.html', url="", link_type=self.link_type.title(),
                         links=records, bibcode=self.bibcode), 200
 
@@ -96,6 +96,8 @@ class LinkRequest():
         """
         if request:
             self.referrer = request.referrer
+        if request.headers:
+            self.real_ip = request.headers.get('x-real-ip', None)
         session = request.cookies.get('session', None)
         if session:
             account = redis_db.get(session)
@@ -112,7 +114,6 @@ class LinkRequest():
                     return False
             self.user_id = account['user_id']
             self.client_id = account['client_id']
-            self.access_token = account['access_token']
             return True
         return False
 
@@ -126,15 +127,15 @@ class LinkRequest():
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
         if self.set_user_info(request):
-            current_app.logger.info('click logging info: user_id=%s, client_id=%s, access_token=%s'
-                                    %(self.user_id, self.client_id, self.access_token))
+            current_app.logger.info('click logging info: user_id=%s, client_id=%s, real_ip=%s'
+                                    %(self.user_id, self.client_id, self.real_ip))
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
         # if there is a url we need to log the request and redirect
         if (self.url != None):
             current_app.logger.debug('received to redirect to %s' %(self.url))
-            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.access_token)
+            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
             return self.redirect(self.url)
 
         try:
