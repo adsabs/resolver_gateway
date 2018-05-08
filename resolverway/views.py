@@ -173,6 +173,9 @@ def resolver(bibcode, link_type, url):
     :param url:
     :return:
     """
+    # colon should not have come through, but apprently it does on the server
+    if url:
+        url = url.lstrip(':')
     return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
 
