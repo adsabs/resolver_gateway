@@ -68,18 +68,18 @@ class LinkRequest():
         current_app.logger.debug('The requested resource does not exist.')
         return render_template('400.html'), 400
 
-    def get_user_info_from_adsws(self, cookies):
+    def get_user_info_from_adsws(self, session):
         """
 
         :param request:
         :return:
         """
-        if cookies:
+        if session:
             try:
-                current_app.logger.info('getting user info from adsws with session=%s' % (cookies))
+                current_app.logger.info('getting user info from adsws with session=%s' % (session))
+                url = current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'] + '/' + session
                 headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
-                r = requests.get(url=current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'], headers=headers,
-                                 cookies=cookies)
+                r = requests.get(url=url, headers=headers)
                 if r.status_code == 200:
                     return r.json()
             except HTTPError as e:
@@ -106,14 +106,14 @@ class LinkRequest():
                 # account is saved to cache as string, turned it back to dict
                 account = ast.literal_eval(account)
             else:
-                account = self.get_user_info_from_adsws(request.cookies)
+                account = self.get_user_info_from_adsws(session)
                 if account:
                     # save it to cache
                     redis_db.set(session, account)
                 else:
                     return False
-            self.user_id = account['user_id']
-            self.client_id = account['client_id']
+            self.user_id = account['hashed_user_id']
+            self.client_id = account['hashed_client_id']
             return True
         return False
 
