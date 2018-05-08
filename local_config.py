@@ -4,6 +4,7 @@ LOGGING_LEVEL = "INFO"
 DISCOVERER_SELF_PUBLISH = True
 RESOLVER_SERVICE_ACCOUNT_TOKEN_URL = ""
 RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN = ""
+REDIS_URL = ""
 
 
 # added by eb-deploy (over-write config values) from environment
