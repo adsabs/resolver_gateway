@@ -163,6 +163,7 @@ class LinkRequest():
 @bp.route('/link_gateway/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
 @bp.route('/link_gateway/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
 @bp.route('/link_gateway/<bibcode>/<link_type>/<path:url>', methods=['GET'])
+@bp.route('/link_gateway/<bibcode>/<link_type>:<url>', methods=['GET'])
 def resolver(bibcode, link_type, url):
     """
 
