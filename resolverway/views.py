@@ -125,7 +125,6 @@ class LinkRequest():
 
         :return:
         """
-        print '...............self.url=', self.url
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
