@@ -125,6 +125,7 @@ class LinkRequest():
 
         :return:
         """
+        print '...............self.url=', self.url
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
@@ -166,7 +167,6 @@ class LinkRequest():
 @bp.route('/link_gateway/<bibcode>', defaults={'link_type': '', 'url': None}, methods=['GET'])
 @bp.route('/link_gateway/<bibcode>/<link_type>', defaults={'url': None}, methods=['GET'])
 @bp.route('/link_gateway/<bibcode>/<link_type>/<path:url>', methods=['GET'])
-@bp.route('/link_gateway/<bibcode>/<link_type>:<url>', methods=['GET'])
 def resolver(bibcode, link_type, url):
     """
 
