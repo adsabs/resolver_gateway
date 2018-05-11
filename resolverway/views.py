@@ -50,7 +50,10 @@ class LinkRequest():
             if link:
                 link = urllib.unquote(link)
                 current_app.logger.info('redirecting to %s' %(link))
-                log_request(self.bibcode, self.user_id, self.link_type, link, self.referrer, self.client_id, self.real_ip)
+                link_type = the_json_response.get('link_type', None)
+                if link_type == None:
+                    link_type = self.link_type
+                log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip)
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
