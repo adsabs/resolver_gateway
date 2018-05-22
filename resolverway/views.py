@@ -34,7 +34,9 @@ class LinkRequest():
         self.real_ip = None
 
     def redirect(self, link):
-        response = redirect(urllib.quote(link), 302)
+        # need to urlencode the bibcode only! (ie, 1973A&A....24..337S)
+        link = link.replace(self.bibcode, urllib.quote(self.bibcode))
+        response = redirect(link, 302)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
         return response, 302
