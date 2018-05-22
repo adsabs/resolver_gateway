@@ -34,7 +34,7 @@ class LinkRequest():
         self.real_ip = None
 
     def redirect(self, link):
-        response = redirect(urllib.unquote(link), 302)
+        response = redirect(urllib.quote(link), 302)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
         return response, 302
