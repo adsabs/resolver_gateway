@@ -34,7 +34,7 @@ class LinkRequest():
         self.real_ip = None
 
     def redirect(self, link):
-        response = redirect(link, 302)
+        response = redirect(urllib.unquote(link), 302)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
         return response, 302
@@ -177,9 +177,6 @@ def resolver(bibcode, link_type, url):
     :param url:
     :return:
     """
-    # colon should not have come through, but apprently it does on the server
-    if url:
-        url = url.lstrip(':')
     return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
 
