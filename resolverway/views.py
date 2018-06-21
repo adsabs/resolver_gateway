@@ -181,7 +181,6 @@ def resolver(bibcode, link_type, url):
     """
     if url:
         url = url.lstrip(':')
-    print '.........resolver => url = ', url
     return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
 
@@ -195,5 +194,4 @@ def resolver_id(bibcode, link_type, id):
     :param id:
     :return:
     """
-    print '.........resolver_id => id = ', id
     return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
