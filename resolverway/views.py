@@ -82,8 +82,8 @@ class LinkRequest():
         if session:
             try:
                 current_app.logger.info('getting user info from adsws for %s' % (session))
-                url = current_app.config['RESOLVER_SERVICE_ACCOUNT_TOKEN_URL'] + '/' + session
-                headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN']}
+                url = current_app.config['GATEWAY_SERVICE_ACCOUNT_INFO_URL'] + '/' + session
+                headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
                 r = requests.get(url=url, headers=headers)
                 if r.status_code == 200:
                     current_app.logger.info('got results=%s' % (r.json()))
@@ -151,8 +151,8 @@ class LinkRequest():
                 params = self.bibcode + '/' + self.link_type + ':' + self.id
             else:
                 params = self.bibcode + '/' + self.link_type
-            headers = {'Authorization': 'Bearer ' + current_app.config['RESOLVER_SERVICE_ADSWS_API_TOKEN']}
-            response = requests.get(url=current_app.config['RESOLVER_SERVICE_URL'] %(params), headers=headers)
+            headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
+            response = requests.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] %(params), headers=headers)
     
             contentType = response.headers.get('content-type')
     

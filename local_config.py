@@ -2,8 +2,9 @@ import logging
 LOG_LEVEL = 30 # To be deprecated when all microservices use ADSFlask
 LOGGING_LEVEL = "INFO"
 DISCOVERER_SELF_PUBLISH = True
-RESOLVER_SERVICE_ACCOUNT_TOKEN_URL = ""
-RESOLVER_SERVICE_ADSWS_API_INFO_TOKEN = ""
+GATEWAY_RESOLVER_SERVICE_URL = "https://qa.adsabs.harvard.edu/v1/resolver/%s"
+GATEWAY_SERVICE_ACCOUNT_INFO_URL = ""
+GATEWAY_TOKEN = ""
 REDIS_URL = ""
 
 
