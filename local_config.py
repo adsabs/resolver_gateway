@@ -2,6 +2,10 @@ import logging
 LOG_LEVEL = 30 # To be deprecated when all microservices use ADSFlask
 LOGGING_LEVEL = "INFO"
 DISCOVERER_SELF_PUBLISH = True
+GATEWAY_RESOLVER_SERVICE_URL = ""
+GATEWAY_SERVICE_ACCOUNT_INFO_URL = ""
+GATEWAY_TOKEN = ""
+REDIS_URL = ""
 
 
 # added by eb-deploy (over-write config values) from environment
