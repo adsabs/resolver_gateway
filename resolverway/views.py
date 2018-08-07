@@ -2,7 +2,6 @@
 from flask import current_app, request, Blueprint, Response, redirect, render_template
 from flask_redis import FlaskRedis
 from flask_discoverer import advertise
-import requests
 from requests.exceptions import HTTPError, ConnectionError
 import ast
 import urllib
@@ -84,7 +83,7 @@ class LinkRequest():
                 current_app.logger.info('getting user info from adsws for %s' % (session))
                 url = current_app.config['GATEWAY_SERVICE_ACCOUNT_INFO_URL'] + '/' + session
                 headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
-                r = requests.get(url=url, headers=headers)
+                r = current_app.client.get(url=url, headers=headers)
                 if r.status_code == 200:
                     current_app.logger.info('got results=%s' % (r.json()))
                     return r.json()
@@ -152,10 +151,10 @@ class LinkRequest():
             else:
                 params = self.bibcode + '/' + self.link_type
             headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
-            response = requests.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] %(params), headers=headers)
-    
+            response = current_app.client.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] %(params), headers=headers)
+
             contentType = response.headers.get('content-type')
-    
+
             # need to make sure the response is json
             if (contentType == 'application/json'):
                 return self.process_resolver_response(response.json())
@@ -163,7 +162,7 @@ class LinkRequest():
             current_app.logger.error("Http Error: %s" %(e))
         except ConnectionError as e:
             current_app.logger.error("Error Connecting: %s" %(e))
-            
+
         return render_template('400.html'), 400
 
 

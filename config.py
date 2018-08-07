@@ -1,4 +1,6 @@
 
+LOG_STDOUT = True
+
 # This the URL to resolver_service api
 GATEWAY_RESOLVER_SERVICE_URL = 'https://dev.adsabs.harvard.edu/v1/resolver/%s'
 
