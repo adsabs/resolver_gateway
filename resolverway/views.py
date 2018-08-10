@@ -85,9 +85,9 @@ class LinkRequest():
                 headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
                 r = current_app.client.get(url=url, headers=headers)
                 if r.status_code == 200:
-                    current_app.logger.info('got results=%s' % (r.json()))
+                    current_app.logger.info('got results from adsws=%s' % (r.json()))
                     return r.json()
-                current_app.logger.info('got status=%s' % (r.status_code))
+                current_app.logger.info('got status code from adsws=%s' % (r.status_code))
             except HTTPError as e:
                 current_app.logger.error("Http Error: %s" % (e))
             except ConnectionError as e:
@@ -152,7 +152,6 @@ class LinkRequest():
                 params = self.bibcode + '/' + self.link_type
             headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
             response = current_app.client.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] %(params), headers=headers)
-
             contentType = response.headers.get('content-type')
 
             # need to make sure the response is json

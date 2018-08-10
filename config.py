@@ -1,4 +1,3 @@
-
 LOG_STDOUT = True
 
 # This the URL to resolver_service api
