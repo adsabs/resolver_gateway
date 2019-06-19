@@ -106,7 +106,11 @@ class LinkRequest():
             self.real_ip = request.headers.get('x-real-ip', None)
         session = request.cookies.get('session', None)
         if session:
-            account = redis_db.get(session)
+            try:
+                account = redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+session)
+            except:
+                account = None
+                current_app.logger.error('exception on getting user info from cache with session=%s' % (session))
             if account:
                 current_app.logger.info('getting user info from cache with session=%s' % (session))
                 # account is saved to cache as string, turned it back to dict
@@ -114,8 +118,11 @@ class LinkRequest():
             else:
                 account = self.get_user_info_from_adsws(session)
                 if account:
-                    # save it to cache
-                    redis_db.set(session, account)
+                    try:
+                        # save it to cache for a week
+                        redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+session, value=account, ex=604800)
+                    except:
+                        current_app.logger.error('exception on setting user info to cache with session=%s' % (session))
                 else:
                     return False
             self.user_id = account['hashed_user_id']

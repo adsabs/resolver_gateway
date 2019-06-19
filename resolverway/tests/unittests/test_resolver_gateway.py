@@ -115,7 +115,7 @@ class test_resolver(TestCase):
         """
         # add an entry
         account1 = {"source": "session:client_id", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
-        self.current_app.extensions['redis'].set('key1', account1)
+        self.current_app.extensions['redis'].set(self.current_app.config['REDIS_NAME_PREFIX']+'key1', account1)
 
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
         header = {'cookie': 'session=key1', 'x-real-ip': '0.0.0.0'}
