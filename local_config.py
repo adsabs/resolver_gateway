@@ -6,7 +6,7 @@ DISCOVERER_SELF_PUBLISH = True
 GATEWAY_RESOLVER_SERVICE_URL = "https://qa.adsabs.harvard.edu/v1/resolver/%s"
 GATEWAY_SERVICE_ACCOUNT_INFO_URL = ""
 GATEWAY_TOKEN = ""
-REDIS_URL = ""
+REDIS_URL = "redis://localhost:6379/0"
 
 
 # added by eb-deploy (over-write config values) from environment
