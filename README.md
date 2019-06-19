@@ -90,6 +90,7 @@ For example to return links for *all*  full text sources, you would do
   * **herschel** *Herschel Science Center*
   * **ibvs** *Information Bulletin on Variable Stars*
   * **ines** *IUE Newly Extracted Spectra*
+  * **irsa** *NASA/IPAC Infrared Science Archive*
   * **iso** *Infrared Space Observatory*
   * **koa** *Keck Observatory Archive*
   * **mast** *Mikulski Archive for Space Telescopes*
