@@ -93,6 +93,8 @@ class LinkRequest():
                 current_app.logger.error("Http Error: %s" % (e))
             except ConnectionError as e:
                 current_app.logger.error("Error Connecting: %s" % (e))
+            except Exception as e:
+                current_app.logger.error("Exception: %s" % (e))
         return None
 
     def set_user_info(self, request):

@@ -5,7 +5,7 @@ LOGGING_LEVEL = 'DEBUG'
 GATEWAY_RESOLVER_SERVICE_URL = 'https://api.adsabs.harvard.edu/v1/resolver/%s'
 
 # This is a URL to adsws account info service
-GATEWAY_SERVICE_ACCOUNT_INFO_URL = 'https://api.adsabs.harvard.edu/v1/accounts/info'
+GATEWAY_SERVICE_ACCOUNT_INFO_URL = ''
 
 # gateway token
 GATEWAY_TOKEN = 'this is a secret api token!'
