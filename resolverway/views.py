@@ -1,6 +1,7 @@
 
 from flask import current_app, request, Blueprint, Response, redirect, render_template
 from flask_redis import FlaskRedis
+from redis import RedisError
 from flask_discoverer import advertise
 from requests.exceptions import HTTPError, ConnectionError
 import ast
@@ -87,7 +88,7 @@ class LinkRequest():
                 if r.status_code == 200:
                     current_app.logger.info('got results from adsws=%s' % (r.json()))
                     return r.json()
-                current_app.logger.info('got status code from adsws=%s with message %s' % (r.status_code, r.json()))
+                current_app.logger.error('got status code from adsws=%s with message %s' % (r.status_code, r.json()))
             except HTTPError as e:
                 current_app.logger.error("Http Error: %s" % (e))
             except ConnectionError as e:
@@ -108,9 +109,9 @@ class LinkRequest():
         if session:
             try:
                 account = redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+session)
-            except:
+            except RedisError as e:
                 account = None
-                current_app.logger.error('exception on getting user info from cache with session=%s' % (session))
+                current_app.logger.error('exception on getting user info from cache with session=%s: %s' % (session, str(e)))
             if account:
                 current_app.logger.info('getting user info from cache with session=%s' % (session))
                 # account is saved to cache as string, turned it back to dict
@@ -119,10 +120,11 @@ class LinkRequest():
                 account = self.get_user_info_from_adsws(session)
                 if account:
                     try:
-                        # save it to cache for a week
-                        redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+session, value=account, ex=604800)
-                    except:
-                        current_app.logger.error('exception on setting user info to cache with session=%s' % (session))
+                        # save it to cache
+                        redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+session, value=account,
+                                     ex=current_app.config['REDIS_EXPIRATION_TIME'])
+                    except RedisError as e:
+                        current_app.logger.error('exception on setting user info to cache with session=%s: %s' % (session, str(e)))
                 else:
                     return False
             self.user_id = account['hashed_user_id']
