@@ -6,6 +6,7 @@ from flask_discoverer import advertise
 from requests.exceptions import HTTPError, ConnectionError
 import ast
 import urllib
+import urlparse
 
 from resolverway.log import log_request
 
@@ -135,6 +136,36 @@ class LinkRequest():
         return False
 
 
+    def get_request_to_service(self, params):
+        """
+
+        :param param:
+        :return:
+        """
+        headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
+        response = current_app.client.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] % (params), headers=headers)
+        return response
+
+    def verify_link_type(self):
+        """
+
+        :return:
+        """
+        # while testing just return true, do not call service
+        if current_app.config['TESTING']:
+            return True
+        # otherwise make sure link_type is valid
+        response = self.get_request_to_service('check_link_type' + '/' + self.link_type)
+        return response.status_code == 200
+
+    def verify_url(self):
+        """
+
+        :return:
+        """
+        url = urlparse.urlparse(self.url)
+        return all([url.scheme, url.netloc, url.path])
+
     def process_request(self):
         """
 
@@ -149,23 +180,29 @@ class LinkRequest():
         if self.referrer:
             current_app.logger.info('also referrer=%s' %(self.referrer))
 
-        # if there is a url we need to log the request and redirect
-        if (self.url != None):
-            current_app.logger.debug('received to redirect to %s' %(self.url))
-            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
-            return self.redirect(self.url)
-
         try:
+            # if there is a url we need to log the request and redirect
+            if (self.url != None):
+                # make sure link_type is valid
+                if self.verify_link_type():
+                    # make sure we have a valid url to redirect to
+                    if self.verify_url():
+                        current_app.logger.debug('received to redirect to %s' %(self.url))
+                        log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
+                        return self.redirect(self.url)
+                    current_app.logger.error("Invalid url detected: %s" % self.url)
+                    return render_template('400.html'), 400
+                current_app.logger.error("Invalid link_type detected: %s" % self.link_type)
+                return render_template('400.html'), 400
+
             # if no url then send request to resolver_service to get link(s)
             if (self.id != None):
                 params = self.bibcode + '/' + self.link_type + ':' + self.id
             else:
                 params = self.bibcode + '/' + self.link_type
-            headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
-            response = current_app.client.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] %(params), headers=headers)
-            contentType = response.headers.get('content-type')
+            response = self.get_request_to_service(params)
             # need to make sure the response is json
-            if (contentType == 'application/json'):
+            if (response.headers.get('content-type') == 'application/json'):
                 return self.process_resolver_response(response.json())
         except HTTPError as e:
             current_app.logger.error("Http Error: %s" %(e))
@@ -189,6 +226,7 @@ def resolver(bibcode, link_type, url):
     """
     if url:
         url = url.lstrip(':')
+
     return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
 
