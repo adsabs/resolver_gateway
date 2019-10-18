@@ -155,7 +155,8 @@ class LinkRequest():
         if current_app.config['TESTING']:
             return True
         # otherwise make sure link_type is valid
-        response = self.get_request_to_service('check_link_type' + '/' + self.link_type.split('|')[0])
+        link_type = self.link_type if '|' not in self.link_type else self.link_type.split('|')[1]
+        response = self.get_request_to_service('check_link_type' + '/' + link_type)
         return response.status_code == 200
 
     def verify_url(self):
