@@ -142,13 +142,6 @@ class LinkRequest():
         :param param:
         :return:
         """
-        # # while testing just return true, do not call service
-        # if current_app.config['TESTING']:
-        #     print '....params=', params
-        #     print 'ERROR not in params', 'ERROR' not in params
-        #     response = Response(status=302 if 'ERROR' not in params else 400)
-        #     print response
-        #     return response
         headers = {'Authorization': 'Bearer ' + current_app.config['GATEWAY_TOKEN']}
         response = current_app.client.get(url=current_app.config['GATEWAY_RESOLVER_SERVICE_URL'] % (params), headers=headers)
         return response
@@ -158,6 +151,9 @@ class LinkRequest():
 
         :return:
         """
+        # while testing just return true, do not call service
+        if current_app.config['TESTING']:
+            return True
         # otherwise make sure link_type is valid
         response = self.get_request_to_service('check_link_type' + '/' + self.link_type)
         return response.status_code == 200
