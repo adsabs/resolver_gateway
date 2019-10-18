@@ -155,8 +155,7 @@ class LinkRequest():
         if current_app.config['TESTING']:
             return True
         # otherwise make sure link_type is valid
-        link_type = self.link_type if '|' not in self.link_type else self.link_type.split('|')[1]
-        response = self.get_request_to_service('check_link_type' + '/' + link_type)
+        response = self.get_request_to_service('check_link_type' + '/' + self.link_type)
         return response.status_code == 200
 
     def verify_url(self):
@@ -203,8 +202,11 @@ class LinkRequest():
                 params = self.bibcode + '/' + self.link_type
             response = self.get_request_to_service(params)
             # need to make sure the response is json
-            if (response.headers.get('content-type') == 'application/json'):
+            if (response.status_code == 200) and (response.headers.get('content-type') == 'application/json'):
                 return self.process_resolver_response(response.json())
+            # return the error code that service has returned
+            current_app.logger.error('from service got status: %d' % (response.status_code))
+            return render_template('400.html'), response.status_code
         except HTTPError as e:
             current_app.logger.error("Http Error: %s" %(e))
         except ConnectionError as e:
