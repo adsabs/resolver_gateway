@@ -28,14 +28,14 @@ class test_resolver(TestCase):
         r= self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT')
         self.assertEqual(r.status_code, 302)
 
-    def test_route_error(self):
+    def test_route_error_invalid_url(self):
         """
         test that if given invalid url returns error
         :return:
         """
 
         r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/invalid_url')
-        self.assertEqual(r.status_code, 401)
+        self.assertEqual(r.status_code, 400)
 
     def test_single_link(self):
         """
@@ -92,7 +92,7 @@ class test_resolver(TestCase):
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
         self.assertEqual(r[1], 400)
 
-    def test_route_error(self):
+    def test_route_error_invalid_link_type(self):
         """
         Tests for wrong link type
         """
