@@ -33,8 +33,9 @@ class test_resolver(TestCase):
         test that if given invalid url returns error
         :return:
         """
+
         r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/invalid_url')
-        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.status_code, 401)
 
     def test_single_link(self):
         """
