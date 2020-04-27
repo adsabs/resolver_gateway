@@ -77,7 +77,7 @@ class LinkRequest():
     def get_user_info_from_adsws(self, session):
         """
 
-        :param request:
+        :param session:
         :return:
         """
         if session:
@@ -171,10 +171,13 @@ class LinkRequest():
 
         :return:
         """
+        log_the_click = False
         # log the request
         current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
         # fetch and log user info
         if self.set_user_info(request):
+            # log the click only if valid user information is obtained
+            log_the_click = True
             current_app.logger.info('click logging info: user_id=%s, client_id=%s, real_ip=%s'
                                     %(self.user_id, self.client_id, self.real_ip))
         if self.referrer:
@@ -188,7 +191,8 @@ class LinkRequest():
                     # make sure we have a valid url to redirect to
                     if self.verify_url():
                         current_app.logger.debug('received to redirect to %s' %(self.url))
-                        log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
+                        if log_the_click:
+                            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
                         return self.redirect(self.url)
                     current_app.logger.error("Invalid url detected: %s" % self.url)
                     return render_template('400.html'), 400
