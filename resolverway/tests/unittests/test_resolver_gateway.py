@@ -45,7 +45,7 @@ class test_resolver(TestCase):
         the_json = {"action": "redirect",
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
-        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 302)
 
     def test_multiple_links(self):
@@ -60,7 +60,7 @@ class test_resolver(TestCase):
                         {"url": "http://dx.doi.org/10.1093%2Fmnras%2Fstt1379", "title": "http://dx.doi.org/10.1093%2Fmnras%2Fstt1379"},
                         {"url": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf", "title": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf"}]},
                     "service": ""}
-        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, False)
         self.assertEqual(r[0], data.html_data)
         self.assertEqual(r[1], 200)
 
@@ -72,13 +72,13 @@ class test_resolver(TestCase):
         the_json = {"action": "redirect",
                     "link": "http://dx.doi.org/10.1088/2041-8205/713/2/L10",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2010ApJ...713L.103B/DOI:10.1088/2041-8205/713/2/L103"}
-        r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088,2041-8205,713,2,L10').process_resolver_response(the_json)
+        r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088,2041-8205,713,2,L10').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 302)
 
         the_json = {"action": "redirect",
                     "link": "http://arxiv.org/abs/1803.03598",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2018arXiv180303598K/ARXIV:1803.03598"}
-        r = LinkRequest('2018arXiv180303598K', 'ARXIV', '1803.03598').process_resolver_response(the_json)
+        r = LinkRequest('2018arXiv180303598K', 'ARXIV', '1803.03598').process_resolver_response(the_json, False)
         self.assertEqual(r[1], 302)
 
     def test_action_error(self):
@@ -89,7 +89,7 @@ class test_resolver(TestCase):
         the_json = {"action": "redirecterror",
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
                     "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
-        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json)
+        r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 400)
 
     def test_route_error_invalid_link_type(self):

@@ -32,6 +32,7 @@ class LinkRequest():
         self.user_id = None
         self.client_id = None
         self.referrer = None
+        self.user_agent = None
         self.real_ip = None
 
     def redirect(self, link):
@@ -42,7 +43,13 @@ class LinkRequest():
         response.headers['user_id'] = self.user_id
         return response, 302
 
-    def process_resolver_response(self, the_json_response):
+    def process_resolver_response(self, the_json_response, log_the_click):
+        """
+
+        :param the_json_response:
+        :param log_the_click: is True if we have a valid client_id and hence logging the click
+        :return:
+        """
         current_app.logger.info('from service got: %s'%(the_json_response))
 
         action = the_json_response.get('action', '')
@@ -56,7 +63,8 @@ class LinkRequest():
                 link_type = the_json_response.get('link_type', None)
                 if link_type == None:
                     link_type = self.link_type
-                log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip)
+                if log_the_click:
+                    log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip, self.user_agent)
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
@@ -66,7 +74,8 @@ class LinkRequest():
                 records = links.get('records', None)
                 if records:
                     current_app.logger.debug('rendering template with data %s' %(records))
-                    log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
+                    if log_the_click:
+                        log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
                     return render_template('list.html', url="", link_type=self.link_type.title(),
                         links=records, bibcode=self.bibcode), 200
 
@@ -106,6 +115,7 @@ class LinkRequest():
         """
         if request:
             self.referrer = request.referrer
+            self.user_agent = request.user_agent.string
         if request.headers:
             self.real_ip = request.headers.get('x-real-ip', None)
         session = request.cookies.get('session', None)
@@ -181,7 +191,10 @@ class LinkRequest():
             current_app.logger.info('click logging info: user_id=%s, client_id=%s, real_ip=%s'
                                     %(self.user_id, self.client_id, self.real_ip))
         if self.referrer:
-            current_app.logger.info('also referrer=%s' %(self.referrer))
+            current_app.logger.info('with referrer=%s' %(self.referrer))
+        if self.user_agent:
+            current_app.logger.info('and user_agent=%s' %(self.user_agent))
+
 
         try:
             # if there is a url we need to log the request and redirect
@@ -192,7 +205,7 @@ class LinkRequest():
                     if self.verify_url():
                         current_app.logger.debug('received to redirect to %s' %(self.url))
                         if log_the_click:
-                            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip)
+                            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
                         return self.redirect(self.url)
                     current_app.logger.error("Invalid url detected: %s" % self.url)
                     return render_template('400.html'), 400
@@ -207,7 +220,7 @@ class LinkRequest():
             response = self.get_request_to_service(params)
             # need to make sure the response is json
             if (response.status_code == 200) and (response.headers.get('content-type') == 'application/json'):
-                return self.process_resolver_response(response.json())
+                return self.process_resolver_response(response.json(), log_the_click)
             # return the error code that service has returned
             current_app.logger.error('from service got status: %d' % (response.status_code))
             return render_template('400.html'), response.status_code
