@@ -6,13 +6,12 @@ sys.path.append(PROJECT_HOME)
 
 from flask_testing import TestCase
 import unittest
-import Cookie
-
+import json
 
 import resolverway.app as app
 from resolverway.views import LinkRequest, redis_db
 
-from stubdata import data
+from resolverway.tests.unittests.stubdata import data
 
 
 class test_resolver(TestCase):
@@ -97,7 +96,7 @@ class test_resolver(TestCase):
         Tests for wrong link type
         """
         r = self.client.get('/link_gateway/1987gady.book.....B/ERROR')
-        self.assertNotEquals(r.status_code, 200)
+        self.assertNotEqual(r.status_code, 200)
 
     def test_with_header_info(self):
         """
@@ -120,18 +119,23 @@ class test_resolver(TestCase):
         """
         add an entry to redis, pass the same session id and verify that it was fetched
         next do not pass session id and verifty that it was not fetched
+
+        note from python 3 set/get of redis do not accept dict, so need to store dict as json string
+        also note that from python 3 cookies cannot be included in the header, it has to be added using set_cookie
         :return:
         """
         # add an entry
         account1 = {"source": "session:client_id", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
-        self.current_app.extensions['redis'].set(self.current_app.config['REDIS_NAME_PREFIX']+'key1', account1)
+        dict_to_json = json.dumps(account1)
+        self.current_app.extensions['redis'].set(self.current_app.config['REDIS_NAME_PREFIX']+'key1', dict_to_json)
 
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
-        header = {'cookie': 'session=key1', 'x-real-ip': '0.0.0.0'}
-        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
+        self.client.set_cookie('/','session','key1')
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers={'x-real-ip': '0.0.0.0'})
         self.assertEqual(r.headers['user_id'], 'ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c')
 
         # verify that when no cookie is send, session_id is None
+        self.client.cookie_jar.clear()
         r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT')
         self.assertEqual(r.headers['user_id'], 'None')
 
