@@ -7,6 +7,7 @@ sys.path.append(PROJECT_HOME)
 from flask_testing import TestCase
 import unittest
 import json
+import mock
 
 import resolverway.app as app
 from resolverway.views import LinkRequest, redis_db
@@ -155,8 +156,30 @@ class test_resolver(TestCase):
 
         :return:
         """
+        # verify when None is send in for session, account is None
         account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws(None)
         self.assertEqual(account, None)
+
+        # verify when successfully user info is set, True is returned
+        with mock.patch.object(self.current_app.client, 'get') as get_mock:
+            get_mock.return_value = mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"source": "session:key1", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
+            self.client.set_cookie('/', 'session', 'key1')
+
+            status = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').set_user_info(get_mock)
+            self.assertEqual(status, True)
+
+        # verify when successfully user info is read, dict of user is returned
+        with mock.patch.object(self.current_app.client, 'get') as get_mock:
+            get_mock.return_value = mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"source": "session:key1", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
+            self.client.set_cookie('/', 'session', 'client_id')
+
+            account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws('key1')
+            self.assertEqual(account['hashed_client_id'], "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d")
+            self.assertEqual(account['hashed_user_id'], "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c")
 
 
 if __name__ == '__main__':
