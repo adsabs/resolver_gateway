@@ -1,12 +1,16 @@
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 from flask import current_app, request, Blueprint, Response, redirect, render_template
 from flask_redis import FlaskRedis
 from redis import RedisError
 from flask_discoverer import advertise
 from requests.exceptions import HTTPError, ConnectionError
 import ast
-import urllib
-import urlparse
+import json
+import urllib.request, urllib.parse, urllib.error
 
 from resolverway.log import log_request
 
@@ -14,7 +18,7 @@ bp = Blueprint('resolver_gateway', __name__)
 redis_db = FlaskRedis()
 
 
-class LinkRequest():
+class LinkRequest(object):
 
     bibcode = ''
     link_type = ''
@@ -37,7 +41,7 @@ class LinkRequest():
 
     def redirect(self, link):
         # need to urlencode the bibcode only! (ie, 1973A&A....24..337S)
-        link = link.replace(self.bibcode, urllib.quote(self.bibcode))
+        link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode))
         response = redirect(link, 302)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
@@ -58,7 +62,7 @@ class LinkRequest():
         if (action == 'redirect'):
             link = the_json_response.get('link', None)
             if link:
-                link = urllib.unquote(link)
+                link = urllib.parse.unquote(link)
                 current_app.logger.info('redirecting to %s' %(link))
                 link_type = the_json_response.get('link_type', None)
                 if link_type == None:
@@ -121,20 +125,19 @@ class LinkRequest():
         session = request.cookies.get('session', None)
         if session:
             try:
-                account = redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+session)
+                # account is saved to cache as json, turned it back to dict
+                account = json.loads(redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+session))
             except RedisError as e:
                 account = None
                 current_app.logger.error('exception on getting user info from cache with session=%s: %s' % (session, str(e)))
             if account:
                 current_app.logger.info('getting user info from cache with session=%s' % (session))
-                # account is saved to cache as string, turned it back to dict
-                account = ast.literal_eval(account)
             else:
                 account = self.get_user_info_from_adsws(session)
                 if account:
                     try:
-                        # save it to cache
-                        redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+session, value=account,
+                        # save it to cache as json
+                        redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+session, value=json.dumps(account),
                                      ex=current_app.config['REDIS_EXPIRATION_TIME'])
                     except RedisError as e:
                         current_app.logger.error('exception on setting user info to cache with session=%s: %s' % (session, str(e)))
@@ -173,8 +176,8 @@ class LinkRequest():
 
         :return:
         """
-        url = urlparse.urlparse(self.url)
-        return all([url.scheme, url.netloc, url.path])
+        url = urllib.parse.urlparse(self.url)
+        return all([url.scheme, url.netloc])
 
     def process_request(self):
         """
