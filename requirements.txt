@@ -1,8 +1,6 @@
-git+https://github.com/adsabs/ADSMicroserviceUtils.git@v1.1.9
-git+https://github.com/adsabs/ADSPipelineMsg.git@v1.1.5
+git+https://github.com/adsabs/ADSMicroserviceUtils.git@v1.2.0
 flask-redis==0.4.0
 flask-restful==0.3.8
-future==0.18.2
 redis==3.3.0
 
 

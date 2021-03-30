@@ -1,14 +1,11 @@
 
-from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
-from flask import current_app, request, Blueprint, Response, redirect, render_template
+from flask import current_app, request, Blueprint, redirect, render_template
 from flask_redis import FlaskRedis
 from redis import RedisError
 from flask_discoverer import advertise
 from requests.exceptions import HTTPError, ConnectionError
-import ast
 import json
 import urllib.request, urllib.parse, urllib.error
 
