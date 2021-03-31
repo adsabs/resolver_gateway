@@ -22,7 +22,11 @@ This microservice captures and logs information such as search, abstract view et
     
 ## Testing
 
-On your desktop run:
+On your desktop start radis server
+
+    $ redis-server
+    
+and then run:
 
     $ py.test
     
