@@ -61,6 +61,7 @@ class test_resolver(TestCase):
                         {"url": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf", "title": "http://mnras.oxfordjournals.org/content/435/3/1904.full.pdf"}]},
                     "service": ""}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, False)
+        self.maxDiff = None;
         self.assertEqual(r[0], data.html_data)
         self.assertEqual(r[1], 200)
 

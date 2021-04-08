@@ -14,9 +14,9 @@ def create_app(**config):
     """
 
     if config:
-        app = ADSFlask(__name__, static_folder=None, local_config=config)
+        app = ADSFlask(__name__, static_folder="static", local_config=config)
     else:
-        app = ADSFlask(__name__, static_folder=None)
+        app = ADSFlask(__name__, static_folder="static")
 
     app.url_map.strict_slashes = False
 
