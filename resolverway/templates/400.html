@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    {% include "head.html" %}
     <title>Error</title>
 </head>
 <body>
-<h3>The requested resource does not exist.</h3>
+    {% include "header.html" %}
+
+    <div class="main-container">
+        <h3 style="text-align: center">The requested resouces does not exist.</h3>
+        <p style="text-align: center">
+            <a href="/">Click here to reload Bumblebee</a> or use your browser's back button to go to a previous page.
+        </p>
+    </div>
+    
+    {% include "footer.html" %}
 </body>
 </html>

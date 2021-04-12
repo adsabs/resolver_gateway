@@ -1,31 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    {% include "head.html" %}
     <title>NASA/ADS Search</title>
 </head>
 <body>
+    
     <div class="header-container">
-        <h3><A HREF="{{ url }}">NASA/ADS Search</a></h3>
-        <hr>
+        {% include "header.html" %}
     </div>
-    <div class="main-container">
+
+    <div class="main-container container-sm">
         {% block content %}
-        <h3>{{ linkType }} links for <b>{{ bibcode }}</b></h3>
-        <dl>
-        {% for link in links %}
-            <dt><a href="{{ link['url'] }}">{{ link['title'] }}</a></dt>
-            {% for data in link['data'] %}
-                <dd><a href="{{ data['url'] }}">{{ data['title'] }}</a></dd>
-                <br>
+        <h3 class="text-center">{{ linkType }} links for <a href={{ url }}><b>{{ bibcode }}</b></a></h3>
+        <div class="list-group">
+            {% for link in links %}
+                <div class="list-group-item">
+                    <a href="{{ link['url'] }}" class="title">
+                        {{ link['title'] }}
+                    </a>
+                    {% for data in link['data'] %}
+                        <br>
+                        <a href="{{ data['url'] }}">
+                            {{ data['title'] }}
+                        </a>
+                    {% endfor %}
+                </div>
             {% endfor %}
-            <br>
-        {% endfor %}
-        </dl>
+        </div>
         {% endblock %}
     </div>
+
     <div class="footer-container">
+        {% include "footer.html" %}
     </div>
+
 </body>
 </html>
-

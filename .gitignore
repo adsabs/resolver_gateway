@@ -1,5 +1,7 @@
 *.py[co]
 local_config.py
 python
+.coverage
+dump.rdb
 # Mac specific files
 .DS_Store
