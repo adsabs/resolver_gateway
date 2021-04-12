@@ -127,6 +127,9 @@ class LinkRequest(object):
             except RedisError as e:
                 account = None
                 current_app.logger.error('exception on getting user info from cache with session=%s: %s' % (session, str(e)))
+            except TypeError as e:
+                account = None
+                current_app.logger.error('exception on getting user info from cache possibly no session: %s' % (str(e)))
             if account:
                 current_app.logger.info('getting user info from cache with session=%s' % (session))
             else:
