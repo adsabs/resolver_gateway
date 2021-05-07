@@ -177,7 +177,7 @@ class LinkRequest(object):
         :return:
         """
         url = urllib.parse.urlparse(self.url)
-        return all([url.scheme, url.netloc])
+        return all([url.path])
 
     def process_request(self):
         """
