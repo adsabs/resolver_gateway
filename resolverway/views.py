@@ -8,6 +8,7 @@ from flask_discoverer import advertise
 from requests.exceptions import HTTPError, ConnectionError
 import json
 import urllib.request, urllib.parse, urllib.error
+import re
 
 from resolverway.log import log_request
 
@@ -23,6 +24,8 @@ class LinkRequest(object):
     url = None
     user_id = None
     referrer = None
+
+    re_ads_link = re.compile(r"^(/abs/[12][09]\d\d[A-Za-z\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
 
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
@@ -176,8 +179,10 @@ class LinkRequest(object):
 
         :return:
         """
+
         url = urllib.parse.urlparse(self.url)
-        return all([url.path])
+        match = self.re_ads_link.match(self.url)
+        return all([url.scheme, url.netloc]) or match
 
     def process_request(self):
         """
