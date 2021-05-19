@@ -25,7 +25,7 @@ class test_resolver(TestCase):
         Tests for the existence of a /link_gateway route, and that it returns
         properly formatted JSON data when the URL is supplied
         """
-        r= self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT')
+        r= self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT')
         self.assertEqual(r.status_code, 302)
 
     def test_route_error_invalid_url(self):
@@ -44,7 +44,7 @@ class test_resolver(TestCase):
         """
         the_json = {"action": "redirect",
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
-                    "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
+                    "service": "https://ui.adsabs.harvard.edu/abs/2013MNRAS.435.1904/ESOURCE"}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 302)
 
@@ -71,13 +71,13 @@ class test_resolver(TestCase):
         """
         the_json = {"action": "redirect",
                     "link": "http://dx.doi.org/10.1088/2041-8205/713/2/L10",
-                    "service": "https://ui.adsabs.harvard.edu/#abs/2010ApJ...713L.103B/DOI:10.1088/2041-8205/713/2/L103"}
+                    "service": "https://ui.adsabs.harvard.edu/abs/2010ApJ...713L.103B/DOI:10.1088/2041-8205/713/2/L103"}
         r = LinkRequest('2010ApJ...713L.103B', 'DOI', '10.1088,2041-8205,713,2,L10').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 302)
 
         the_json = {"action": "redirect",
                     "link": "http://arxiv.org/abs/1803.03598",
-                    "service": "https://ui.adsabs.harvard.edu/#abs/2018arXiv180303598K/ARXIV:1803.03598"}
+                    "service": "https://ui.adsabs.harvard.edu/abs/2018arXiv180303598K/ARXIV:1803.03598"}
         r = LinkRequest('2018arXiv180303598K', 'ARXIV', '1803.03598').process_resolver_response(the_json, False)
         self.assertEqual(r[1], 302)
 
@@ -88,7 +88,7 @@ class test_resolver(TestCase):
         """
         the_json = {"action": "redirecterror",
                     "link": "http://archive.stsci.edu/mastbibref.php?bibcode=2013MNRAS.435.1904M",
-                    "service": "https://ui.adsabs.harvard.edu/#abs/2013MNRAS.435.1904/ESOURCE"}
+                    "service": "https://ui.adsabs.harvard.edu/abs/2013MNRAS.435.1904/ESOURCE"}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, True)
         self.assertEqual(r[1], 400)
 
@@ -105,7 +105,7 @@ class test_resolver(TestCase):
         :return:
         """
         header = {'Referer': 'https://www.google.com/'}
-        r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/1987gady.book.....B/ABSTRACT', headers=header)
+        r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://ui.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT', headers=header)
         self.assertEqual(r.status_code, 302)
 
     def test_redis_available(self):
@@ -132,12 +132,12 @@ class test_resolver(TestCase):
 
         # verify that when the same session id is passed as cookie, the entry was fetched from redis
         self.client.set_cookie('/','session','key1')
-        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers={'x-real-ip': '0.0.0.0'})
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT', headers={'x-real-ip': '0.0.0.0'})
         self.assertEqual(r.headers['user_id'], 'ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c')
 
         # verify that when no cookie is send, session_id is None
         self.client.cookie_jar.clear()
-        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT')
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT')
         self.assertEqual(r.headers['user_id'], 'None')
 
     def test_redis_exception(self):
@@ -148,7 +148,7 @@ class test_resolver(TestCase):
         self.current_app.extensions['redis']._redis_client.connection_pool.max_connections = 0
         self.current_app.extensions['redis']._redis_client.connection_pool.disconnect()
         header = {'cookie': 'session=key1', 'x-real-ip': '0.0.0.0'}
-        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT', headers=header)
+        r = self.client.get('/link_gateway/2018AAS...23130709A/ABSTRACT/https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT', headers=header)
         self.assertEqual(r.headers['user_id'], 'None')
 
     def test_adsws_call(self):
@@ -157,7 +157,7 @@ class test_resolver(TestCase):
         :return:
         """
         # verify when None is send in for session, account is None
-        account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws(None)
+        account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws(None)
         self.assertEqual(account, None)
 
         # verify when successfully user info is set, True is returned
@@ -167,7 +167,7 @@ class test_resolver(TestCase):
             mock_response.json.return_value = {"source": "session:key1", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
             self.client.set_cookie('/', 'session', 'key1')
 
-            status = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').set_user_info(get_mock)
+            status = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT').set_user_info(get_mock)
             self.assertEqual(status, True)
 
         # verify when successfully user info is read, dict of user is returned
@@ -177,7 +177,7 @@ class test_resolver(TestCase):
             mock_response.json.return_value = {"source": "session:key1", "hashed_client_id": "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d", "anonymous": True, "hashed_user_id": "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c"}
             self.client.set_cookie('/', 'session', 'client_id')
 
-            account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/#abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws('key1')
+            account = LinkRequest('2018AAS...23130709A', 'ABSTRACT', 'https://ui.adsabs.harvard.edu/abs/2018AAS...23130709A/ABSTRACT').get_user_info_from_adsws('key1')
             self.assertEqual(account['hashed_client_id'], "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d")
             self.assertEqual(account['hashed_user_id'], "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c")
 
