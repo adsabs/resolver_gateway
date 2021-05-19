@@ -25,7 +25,7 @@ class LinkRequest(object):
     user_id = None
     referrer = None
 
-    re_ads_link = re.compile(r"^(/abs/[12][09]\d\d[A-Za-z\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
+    re_ads_link = re.compile(r"^(/abs/[12][09]\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
 
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
@@ -174,15 +174,38 @@ class LinkRequest(object):
         response = self.get_request_to_service('check_link_type' + '/' + self.link_type)
         return response.status_code == 200
 
-    def verify_url(self):
+    def verify_url(self, referrer):
         """
 
+        :param referrer:
         :return:
         """
-
-        url = urllib.parse.urlparse(self.url)
+        # if in-house link detected
         match = self.re_ads_link.match(self.url)
-        return all([url.scheme, url.netloc]) or match
+        if match:
+            return True
+
+        referred_ads = current_app.config['GATEWAY_SERVICE_REFERRED_DOMAIN']
+        url = urllib.parse.urlparse(self.url)
+        if all([url.scheme, url.netloc]):
+            try:
+                # if full url in-house link detected
+                if url.netloc.split('.',1)[-1] == referred_ads:
+                    return True
+            except:
+                try:
+                    # if a valid outside link, see if originated from ads
+                    referrer_url = urllib.parse.urlparse(referrer)
+                    if all([referrer_url.scheme, referrer_url.netloc]):
+                        if referrer_url.netloc.split('.',1)[-1] == referred_ads:
+                            return True
+                except:
+                    # TODO: check back with resolver servcie, make sure it is from there
+                    pass
+                pass
+
+        # for now do not redirect if outside link and did not originate from BBB
+        return False
 
     def process_request(self):
         """
@@ -210,7 +233,7 @@ class LinkRequest(object):
                 # make sure link_type is valid
                 if self.verify_link_type():
                     # make sure we have a valid url to redirect to
-                    if self.verify_url():
+                    if self.verify_url(self.referrer):
                         current_app.logger.debug('received to redirect to %s' %(self.url))
                         if log_the_click:
                             log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
