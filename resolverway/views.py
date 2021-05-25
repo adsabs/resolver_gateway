@@ -192,19 +192,16 @@ class LinkRequest(object):
                 # if full url in-house link detected
                 if url.netloc.split('.',1)[-1] == referred_ads:
                     return True
+                # outside link, see if originated from ads
+                referrer_url = urllib.parse.urlparse(referrer)
+                if all([referrer_url.scheme, referrer_url.netloc]):
+                    if referrer_url.netloc.split('.', 1)[-1] == referred_ads:
+                        return True
+                # TODO: check back with resolver servcie, make sure the redirect link is from there
             except:
-                try:
-                    # if a valid outside link, see if originated from ads
-                    referrer_url = urllib.parse.urlparse(referrer)
-                    if all([referrer_url.scheme, referrer_url.netloc]):
-                        if referrer_url.netloc.split('.',1)[-1] == referred_ads:
-                            return True
-                except:
-                    # TODO: check back with resolver servcie, make sure it is from there
-                    pass
                 pass
 
-        # for now do not redirect if outside link and did not originate from BBB
+        # do not redirect if outside link and did not originate from BBB
         return False
 
     def process_request(self):
