@@ -182,5 +182,14 @@ class test_resolver(TestCase):
             self.assertEqual(account['hashed_user_id'], "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c")
 
 
+    def test_verify_url(self):
+        """
+
+        :return:
+        """
+        header = {'Referer': 'https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/abstract'}
+        r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT', headers=header)
+        self.assertEqual(r.status_code, 302)
+
 if __name__ == '__main__':
   unittest.main()
