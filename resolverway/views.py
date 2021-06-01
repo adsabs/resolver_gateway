@@ -25,7 +25,7 @@ class LinkRequest(object):
     user_id = None
     referrer = None
 
-    re_ads_link = re.compile(r"^(/abs/[12][09]\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
+    re_ads_link = re.compile(r"^(/abs/[12]\d\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
 
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
