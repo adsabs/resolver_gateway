@@ -188,9 +188,13 @@ class test_resolver(TestCase):
 
         :return:
         """
-        header = {'Referer': 'https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/abstract'}
-        r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT', headers=header)
-        self.assertEqual(r.status_code, 302)
+        with mock.patch.object(self.current_app.client, 'get') as get_mock:
+            get_mock.return_value = mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"link": "verified"}
+
+            r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT')
+            self.assertEqual(r.status_code, 302)
 
 if __name__ == '__main__':
   unittest.main()
