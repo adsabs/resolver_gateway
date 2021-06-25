@@ -197,7 +197,7 @@ class LinkRequest(object):
             return True
 
         # not in redis, so send a request to service to make sure link is in db
-        response = self.get_request_to_service(self.bibcode + '/' + urllib.parse.quote(self.url))
+        response = self.get_request_to_service(self.bibcode + ':' + self.url)
         if response.status_code == 200:
             if response.json().get('link') == 'verified':
                 # save it to redis for next time, and it never expires
