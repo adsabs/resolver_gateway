@@ -30,7 +30,7 @@ class LinkRequest(object):
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
         self.link_type = link_type
-        self.url = url
+        self.url = urllib.parse.unquote(url) if url else None
         self.id = id
         self.link_sub_type = ''
         self.user_id = None
@@ -191,17 +191,23 @@ class LinkRequest(object):
 
         # otherwise it is an outside link
         # check redis first
-        domain = urllib.parse.urlparse(self.url).netloc
-        url = redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+domain)
-        if url == 'exist':
-            return True
+        try:
+            domain = urllib.parse.urlparse(self.url).netloc
+            url = redis_db.get(name=current_app.config['REDIS_NAME_PREFIX']+domain)
+            if url == 'exist':
+                return True
+        except RedisError as e:
+            current_app.logger.info('Domain %s not yet in cache: %s' % (domain, str(e)))
 
         # not in redis, so send a request to service to make sure link is in db
-        response = self.get_request_to_service(self.bibcode + ':' + self.url)
+        response = self.get_request_to_service(self.bibcode + '/verify_url:' + urllib.parse.quote(self.url))
         if response.status_code == 200:
             if response.json().get('link') == 'verified':
-                # save it to redis for next time, and it never expires
-                redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+domain, value='exist')
+                try:
+                    # save it to redis for next time, and it never expires
+                    redis_db.set(name=current_app.config['REDIS_NAME_PREFIX']+domain, value='exist')
+                except RedisError as e:
+                    current_app.logger.error('exception on setting domain %s to cache: %s' % (domain, str(e)))
                 return True
 
         # do not redirect if outside link and did not originate from BBB
@@ -229,9 +235,9 @@ class LinkRequest(object):
         try:
             # if there is a url we need to log the request and redirect
             if (self.url != None):
-                # make sure link_type is valid
+                # make sure link_type
                 if self.verify_link_type():
-                    # make sure we have a valid url to redirect to
+                    # also make sure we have a valid url to redirect to
                     if self.verify_url():
                         current_app.logger.debug('received to redirect to %s' %(self.url))
                         if log_the_click:
