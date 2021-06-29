@@ -17,3 +17,5 @@ REDIS_NAME_PREFIX = "link_gateway_"
 REDIS_EXPIRATION_TIME = 604800
 
 GATEWAY_SERVICE_REFERRED_DOMAIN = 'adsabs.harvard.edu'
+
+GATEWAY_ADS_ABSTRACT_PAGE = '/abs/%s/abstract'
