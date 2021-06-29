@@ -80,8 +80,8 @@ class LinkRequest(object):
                     current_app.logger.debug('rendering template with data %s' %(records))
                     if log_the_click:
                         log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
-                    return render_template('list.html', url="", link_type=self.link_type.title(),
-                        links=records, bibcode=self.bibcode), 200
+                    return render_template('list.html', url=current_app.config['GATEWAY_ADS_ABSTRACT_PAGE']%self.bibcode,
+                                           link_type=self.link_type.title(), links=records, bibcode=self.bibcode), 200
 
         # if we get here there is an error, so display error template
         current_app.logger.debug('The requested resource does not exist.')

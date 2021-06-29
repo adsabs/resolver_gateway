@@ -187,7 +187,7 @@ html_data = '''<!DOCTYPE html>
 
     <div class="main-container container-sm">
         
-        <h3 class="text-center"> links for <a href=><b>1987gady.book.....B</b></a></h3>
+        <h3 class="text-center"> links for <a href=/abs/1987gady.book.....B/abstract><b>1987gady.book.....B</b></a></h3>
         <div class="list-group">
             
                 <div class="list-group-item">
