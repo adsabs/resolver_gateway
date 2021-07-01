@@ -141,7 +141,7 @@
 
   .footer_links a {
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.8) !important;
     font-weight: 100;
   }
 
@@ -162,6 +162,56 @@
   .s-footer {
     width: 100%;
   }
+
+  .darkmode-toggle {
+    background: #100f2c;
+    width: 4rem;
+    height: 4rem;
+    position: fixed;
+    border-radius: 50%;
+    right: 32px;
+    bottom: 32px;
+    left: unset;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+
+  @media screen {
+    [data-theme='dark'] {
+      background-color: #010409;
+      color: #c9d1d9;
+    }
+    [data-theme='dark'] .darkmode-toggle {
+      background: #fff;
+    }
+    
+    [data-theme='dark'] a {
+      color: #58a6ff;
+    }
+    [data-theme='dark'] .list-group-item {
+      background-color: #0d1117;
+      border-color: #464545;
+      color: #c9d1d9;
+    }
+    [data-theme='dark'] .list-group-item p {
+      color: #8b949e;
+    }
+
+    [data-theme='dark'] .list-group-item:hover {
+      background-color: #21262d;
+      color: #eee;
+    }
+
+    [data-theme='dark'] .list-group-item:focus {
+      background-color: #21262d;
+      color: #eee;
+    }
+  }
+
 </style>
 <script
   src="https://kit.fontawesome.com/6b7af20fb7.js"

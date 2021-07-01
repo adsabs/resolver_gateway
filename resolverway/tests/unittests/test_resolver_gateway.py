@@ -62,7 +62,7 @@ class test_resolver(TestCase):
                     "service": ""}
         r = LinkRequest('1987gady.book.....B', 'ABSTRACT', '').process_resolver_response(the_json, False)
         self.maxDiff = None;
-        self.assertEqual(r[0], data.html_data)
+        self.assertTrue(data.html_data in r[0])
         self.assertEqual(r[1], 200)
 
     def test_identification_link(self):
