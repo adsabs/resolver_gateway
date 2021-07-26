@@ -41,7 +41,8 @@ class LinkRequest(object):
 
     def redirect(self, link):
         # need to urlencode the bibcode only! (ie, 1973A&A....24..337S)
-        link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode))
+        # also if there are any spaces encode those as well
+        link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode)).replace(' ', '%20')
         response = redirect(link, 302)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
