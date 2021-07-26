@@ -44,6 +44,8 @@ class LinkRequest(object):
         # also if there are any spaces encode those as well
         link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode)).replace(' ', '%20')
         response = redirect(link, 302)
+        current_app.logger.error('DEBUG --- take out --- redirect response', response)
+        current_app.logger.error('DEBUG --- take out --- redirect response self.user_id', self.user_id)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
         return response, 302
