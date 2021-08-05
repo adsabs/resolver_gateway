@@ -41,11 +41,8 @@ class LinkRequest(object):
 
     def redirect(self, link):
         # need to urlencode the bibcode only! (ie, 1973A&A....24..337S)
-        # also if there are any spaces encode those as well
-        link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode)).replace(' ', '%20')
+        link = link.replace(self.bibcode, urllib.parse.quote(self.bibcode))
         response = redirect(link, 302)
-        current_app.logger.error('DEBUG --- take out --- redirect response', response)
-        current_app.logger.error('DEBUG --- take out --- redirect response self.user_id', self.user_id)
         response.autocorrect_location_header = False
         response.headers['user_id'] = self.user_id
         return response, 302
@@ -216,57 +213,72 @@ class LinkRequest(object):
         # do not redirect if outside link and did not originate from BBB
         return False
 
+    def valid_bibcode(self, bibcode):
+        """
+
+        :param bibcode:
+        :return:
+        """
+        try:
+            bibcode = urllib.parse.unquote(bibcode)
+            bibcode.encode().decode('ascii')
+        except UnicodeDecodeError:
+            return False
+        return True
+
     def process_request(self):
         """
 
         :return:
         """
-        log_the_click = False
-        # log the request
-        current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
-        # fetch and log user info
-        if self.set_user_info(request):
-            # log the click only if valid user information is obtained
-            log_the_click = True
-            current_app.logger.info('click logging info: user_id=%s, client_id=%s, real_ip=%s'
-                                    %(self.user_id, self.client_id, self.real_ip))
-        if self.referrer:
-            current_app.logger.info('with referrer=%s' %(self.referrer))
-        if self.user_agent:
-            current_app.logger.info('and user_agent=%s' %(self.user_agent))
 
-        try:
-            # if there is a url we need to log the request and redirect
-            if (self.url != None):
-                # make sure link_type
-                if self.verify_link_type():
-                    # also make sure we have a valid url to redirect to
-                    if self.verify_url():
-                        current_app.logger.debug('received to redirect to %s' %(self.url))
-                        if log_the_click:
-                            log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
-                        return self.redirect(self.url)
-                    current_app.logger.error("Invalid url detected: %s" % self.url)
+        if self.valid_bibcode(self.bibcode):
+            log_the_click = False
+            # log the request
+            current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
+            # fetch and log user info
+            if self.set_user_info(request):
+                # log the click only if valid user information is obtained
+                log_the_click = True
+                current_app.logger.info('click logging info: user_id=%s, client_id=%s, real_ip=%s'
+                                        %(self.user_id, self.client_id, self.real_ip))
+            if self.referrer:
+                current_app.logger.info('with referrer=%s' %(self.referrer))
+            if self.user_agent:
+                current_app.logger.info('and user_agent=%s' %(self.user_agent))
+
+            try:
+                # if there is a url we need to log the request and redirect
+                if (self.url != None):
+                    # make sure link_type
+                    if self.verify_link_type():
+                        # also make sure we have a valid url to redirect to
+                        if self.verify_url():
+                            current_app.logger.debug('received to redirect to %s' %(self.url))
+                            if log_the_click:
+                                log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
+                            return self.redirect(self.url)
+                        current_app.logger.error("Invalid url detected: %s" % self.url)
+                        return render_template('400.html'), 400
+                    current_app.logger.error("Invalid link_type detected: %s" % self.link_type)
                     return render_template('400.html'), 400
-                current_app.logger.error("Invalid link_type detected: %s" % self.link_type)
-                return render_template('400.html'), 400
 
-            # if no url then send request to resolver_service to get link(s)
-            if (self.id != None):
-                params = self.bibcode + '/' + self.link_type + ':' + self.id
-            else:
-                params = self.bibcode + '/' + self.link_type
-            response = self.get_request_to_service(params)
-            # need to make sure the response is json
-            if (response.status_code == 200) and (response.headers.get('content-type') == 'application/json'):
-                return self.process_resolver_response(response.json(), log_the_click)
-            # return the error code that service has returned
-            current_app.logger.error('from service got status: %d' % (response.status_code))
-            return render_template('400.html'), response.status_code
-        except HTTPError as e:
-            current_app.logger.error("Http Error: %s" %(e))
-        except ConnectionError as e:
-            current_app.logger.error("Error Connecting: %s" %(e))
+                # if no url then send request to resolver_service to get link(s)
+                if (self.id != None):
+                    params = self.bibcode + '/' + self.link_type + ':' + self.id
+                else:
+                    params = self.bibcode + '/' + self.link_type
+                response = self.get_request_to_service(params)
+                # need to make sure the response is json
+                if (response.status_code == 200) and (response.headers.get('content-type') == 'application/json'):
+                    return self.process_resolver_response(response.json(), log_the_click)
+                # return the error code that service has returned
+                current_app.logger.error('from service got status: %d' % (response.status_code))
+                return render_template('400.html'), response.status_code
+            except HTTPError as e:
+                current_app.logger.error("Http Error: %s" %(e))
+            except ConnectionError as e:
+                current_app.logger.error("Error Connecting: %s" %(e))
 
         return render_template('400.html'), 400
 
