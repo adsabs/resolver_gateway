@@ -25,7 +25,7 @@ class LinkRequest(object):
     user_id = None
     referrer = None
 
-    re_ads_link = re.compile(r"^(/abs/[12]\d\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z]/abstract)$")
+    re_ads_link = re.compile(r"^(/abs/[12]\d\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z\.]/abstract)$")
 
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
@@ -213,8 +213,9 @@ class LinkRequest(object):
         # do not redirect if outside link and did not originate from BBB
         return False
 
-    def valid_bibcode(self, bibcode):
+    def verify_bibcode(self, bibcode):
         """
+        make sure bibcode is ascii, actually any identifier needs to be ascii
 
         :param bibcode:
         :return:
@@ -232,7 +233,7 @@ class LinkRequest(object):
         :return:
         """
 
-        if self.valid_bibcode(self.bibcode):
+        if self.verify_bibcode(self.bibcode):
             log_the_click = False
             # log the request
             current_app.logger.info('received request with bibcode=%s and link_type=%s' %(self.bibcode, self.link_type))
