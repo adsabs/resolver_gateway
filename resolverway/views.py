@@ -299,6 +299,20 @@ def resolver(bibcode, link_type, url):
     if url:
         url = url.lstrip(':')
 
+    # if there are any parameters in the path, it is not going to come through
+    # need to explicitly be grabbed from request.args
+    # so grab it and appended to the url
+    # ie https://www.youtube.com/watch?v=NP0yvK2KK7I
+    # url contains https://www.youtube.com/watch
+    # request.args contains ImmutableMultiDict([('v', 'NP0yvK2KK7I')])
+    params_dict = request.args
+    if params_dict:
+        params = ''
+        for key, value in params_dict.items():
+            params += '%s=%s&' % (key, value)
+        if params:
+            url = "%s?%s" % (url, params)
+
     return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
 
 
