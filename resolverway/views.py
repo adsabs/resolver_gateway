@@ -313,7 +313,7 @@ def resolver(bibcode, link_type, url):
         if params:
             url = "%s?%s" % (url, params)
 
-    return LinkRequest(bibcode, link_type.upper(), url=url).process_request()
+    return LinkRequest(bibcode, link_type, url=url).process_request()
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
@@ -326,4 +326,4 @@ def resolver_id(bibcode, link_type, id):
     :param id:
     :return:
     """
-    return LinkRequest(bibcode, link_type.upper(), id=id).process_request()
+    return LinkRequest(bibcode, link_type, id=id).process_request()

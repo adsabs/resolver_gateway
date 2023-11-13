@@ -1,4 +1,4 @@
-LOG_STDOUT = True
+LOG_STDOUT = False
 LOGGING_LEVEL = 'DEBUG'
 
 # This the URL to resolver_service api
