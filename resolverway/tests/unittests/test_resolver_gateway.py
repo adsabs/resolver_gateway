@@ -182,7 +182,6 @@ class test_resolver(TestCase):
             self.assertEqual(account['hashed_client_id'], "013c1b1280353b3319133b9c528fb29ba998ae3b7af9b669166a786bc6796c9d")
             self.assertEqual(account['hashed_user_id'], "ec43c30b9a81ed89765a2b8a04cac38925058eeacd5b5264389b1d4a7df2b28c")
 
-
     def test_verify_url(self):
         """
 
@@ -194,6 +193,47 @@ class test_resolver(TestCase):
             mock_response.json.return_value = {"link": "verified"}
 
             r = self.client.get('/link_gateway/1987gady.book.....B/ABSTRACT/https://dev.adsabs.harvard.edu/abs/1987gady.book.....B/ABSTRACT')
+            self.assertEqual(r.status_code, 302)
+
+    def test_url_with_params(self):
+        """
+
+        :return:
+        """
+        with mock.patch.object(self.current_app.client, 'get') as get_mock:
+            get_mock.return_value = mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {
+                    'content-type': 'application/json',
+                    'content-length': '149',
+            }
+            mock_response.json.return_value = {"link": "verified"}
+
+            r = self.client.get('/link_gateway/2021evn..confE...1S/PRESENTATION/https://www.youtube.com/watch?v=NP0yvK2KK7I')
+            self.assertEqual(r.location, 'https://www.youtube.com/watch?v=NP0yvK2KK7I&')
+            self.assertEqual(r.status_code, 302)
+
+    def test_url_with_params_from_ads(self):
+        """
+
+        :return:
+        """
+        with mock.patch.object(self.current_app.client, 'get') as get_mock:
+            get_mock.return_value = mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {
+                    'content-type': 'application/json',
+                    'content-length': '149',
+            }
+            mock_response.json.return_value = {
+                "service": "https://arxiv.org/abs/2308.16228", 
+                "action": "redirect", 
+                "link": "https://arxiv.org/abs/2308.16228", 
+                "link_type": "ESOURCE|EPRINT_HTML",
+            }
+
+            r = self.client.get('/link_gateway/2023arXiv230816228G/EPRINT_HTML?utm_source=myads&utm_medium=email&utm_campaign=type:arxiv&utm_term=10444&utm_content=rank:3')
+            self.assertEqual(r.location, 'https://arxiv.org/abs/2308.16228')
             self.assertEqual(r.status_code, 302)
 
 if __name__ == '__main__':
