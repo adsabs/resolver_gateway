@@ -310,7 +310,7 @@ def resolver(bibcode, link_type, url):
         params = ''
         for key, value in params_dict.items():
             params += '%s=%s&' % (key, value)
-        if params:
+        if url and params:
             url = "%s?%s" % (url, params)
 
     return LinkRequest(bibcode, link_type, url=url).process_request()
