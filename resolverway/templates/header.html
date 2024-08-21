@@ -1,8 +1,5 @@
-<header class="starry-background-wrapper">
-    <div class="logo-header">
-        <a href="/">
-            <img src="/styles/img/transparent_logo.svg" alt="The Astrophysics Data System Logo">
-            <b>astrophysics</b>&nbsp;data system
-        </a>
-    </div>
-</header>
+{% if variant == "ADS" %}
+<div>{% include "header_ads.html" %}</div>
+{% else %}
+<div>{% include "header_scix.html" %}</div>
+{% endif %}

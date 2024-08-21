@@ -1,41 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     {% include "head.html" %}
-    <title>ADS Search</title>
-</head>
-<body>
+    <title>{% if variant === 'ADS' %}ADS{% else %}Scix Search{% endif %}</title>
+  </head>
+  <body>
     
     <div class="header-container">
         {% include "header.html" %}
     </div>
 
     <div class="main-container container-sm">
-        {% block content %}
+      {% block content %}
         <h3 class="text-center">{{ linkType }} links for <a href={{ url }}><b>{{ bibcode }}</b></a></h3>
-        <div class="list-group">
-            {% for link in links %}
-                <div class="list-group-item">
+      <div class="list-group">
+        {% for link in links %}
+        <div class="list-group-item">
                     <a href="{{ link['url'] }}" class="title">
                         {{ link['title'] }}
                     </a>
-                    {% for data in link['data'] %}
+          {% for data in link['data'] %}
                         <br>
                         <a href="{{ data['url'] }}">
                             {{ data['title'] }}
                         </a>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+          {% endfor %}
         </div>
-        {% endblock %}
+        {% endfor %}
+      </div>
+      {% endblock %}
     </div>
 
-    <div class="footer-container">
-        {% include "footer.html" %}
-    </div>
+    {% include "footer.html" %}
 
     <div id="darkSwitch" class="darkmode-toggle" title="Turn on dark mode">🌓</div>
-</body>
-{% include "darkmode.html" %}
+  </body>
+  {% include "darkmode.html" %}
 </html>

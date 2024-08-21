@@ -10,6 +10,9 @@ GATEWAY_SERVICE_ACCOUNT_INFO_URL = ''
 # gateway token
 GATEWAY_TOKEN = 'this is a secret api token!'
 
+# ADS or SCIX
+APP_VARIANT = 'ADS'
+
 # For caching
 REDIS_URL = "redis://localhost:6379/0"
 REDIS_NAME_PREFIX = "link_gateway_"

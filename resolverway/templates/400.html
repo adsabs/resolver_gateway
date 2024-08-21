@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     {% include "head.html" %}
     <title>Error</title>
-</head>
-<body>
+  </head>
+  <body>
     {% include "header.html" %}
 
     <div class="main-container">
-        <h3 style="text-align: center">The requested resource does not exist</h3>
-        <p style="text-align: center">
-            <a href="/">Click here to reload Bumblebee</a> or use your browser's back button to go to a previous page.
-        </p>
+      <h3 style="text-align: center">The requested resource does not exist</h3>
+      <p style="text-align: center">
+        <a href="/"
+          >Click here to reload {% if variant == 'ADS' %}Bumblebee{% else
+          %}Science Explorer{% endif %}</a
+        >
+        or use your browser's back button to go to a previous page.
+      </p>
     </div>
-    
+
     {% include "footer.html" %}
     <div id="darkSwitch" class="darkmode-toggle" title="Turn on dark mode">🌓</div>
-</body>
-{% include "darkmode.html" %}
+  </body>
+  {% include "darkmode.html" %}
 </html>
