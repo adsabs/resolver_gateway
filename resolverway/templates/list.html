@@ -11,24 +11,24 @@
     </div>
 
     <div class="main-container container-sm">
-      {% block content %}
+        {% block content %}
         <h3 class="text-center">{{ linkType }} links for <a href={{ url }}><b>{{ bibcode }}</b></a></h3>
-      <div class="list-group">
-        {% for link in links %}
-        <div class="list-group-item">
+        <div class="list-group">
+            {% for link in links %}
+                <div class="list-group-item">
                     <a href="{{ link['url'] }}" class="title">
                         {{ link['title'] }}
                     </a>
-          {% for data in link['data'] %}
+                    {% for data in link['data'] %}
                         <br>
                         <a href="{{ data['url'] }}">
                             {{ data['title'] }}
                         </a>
-          {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-      </div>
-      {% endblock %}
+        {% endblock %}
     </div>
 
     {% include "footer.html" %}
