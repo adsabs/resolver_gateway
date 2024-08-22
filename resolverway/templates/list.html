@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     {% include "head.html" %}
-    <title>ADS Search</title>
-</head>
-<body>
+    <title>{% if variant == 'ADS' %}ADS{% else %}Scix Search{% endif %}</title>
+  </head>
+  <body>
     
     <div class="header-container">
         {% include "header.html" %}
@@ -31,11 +31,9 @@
         {% endblock %}
     </div>
 
-    <div class="footer-container">
-        {% include "footer.html" %}
-    </div>
+    {% include "footer.html" %}
 
     <div id="darkSwitch" class="darkmode-toggle" title="Turn on dark mode">🌓</div>
-</body>
-{% include "darkmode.html" %}
+  </body>
+  {% include "darkmode.html" %}
 </html>

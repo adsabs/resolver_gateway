@@ -38,6 +38,7 @@ class LinkRequest(object):
         self.referrer = None
         self.user_agent = None
         self.real_ip = None
+        self.variant = current_app.config['APP_VARIANT']
 
     def redirect(self, link):
         # need to urlencode the bibcode only! (ie, 1973A&A....24..337S)
@@ -81,11 +82,11 @@ class LinkRequest(object):
                     if log_the_click:
                         log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
                     return render_template('list.html', url=current_app.config['GATEWAY_ADS_ABSTRACT_PAGE']%self.bibcode,
-                                           link_type=self.link_type.title(), links=records, bibcode=self.bibcode), 200
+                                           link_type=self.link_type.title(), links=records, bibcode=self.bibcode, variant=self.variant), 200
 
         # if we get here there is an error, so display error template
         current_app.logger.debug('The requested resource does not exist.')
-        return render_template('400.html'), 400
+        return render_template('400.html', variant=self.variant), 400
 
     def get_user_info_from_adsws(self, session):
         """
@@ -260,9 +261,9 @@ class LinkRequest(object):
                                 log_request(self.bibcode, self.user_id, self.link_type, self.url, self.referrer, self.client_id, self.real_ip, self.user_agent)
                             return self.redirect(self.url)
                         current_app.logger.error("Invalid url detected: %s" % self.url)
-                        return render_template('400.html'), 400
+                        return render_template('400.html', variant=self.variant), 400
                     current_app.logger.error("Invalid link_type detected: %s" % self.link_type)
-                    return render_template('400.html'), 400
+                    return render_template('400.html', variant=self.variant), 400
 
                 # if no url then send request to resolver_service to get link(s)
                 if (self.id != None):
@@ -275,13 +276,13 @@ class LinkRequest(object):
                     return self.process_resolver_response(response.json(), log_the_click)
                 # return the error code that service has returned
                 current_app.logger.error('from service got status: %d' % (response.status_code))
-                return render_template('400.html'), response.status_code
+                return render_template('400.html', variant=self.variant), response.status_code
             except HTTPError as e:
                 current_app.logger.error("Http Error: %s" %(e))
             except ConnectionError as e:
                 current_app.logger.error("Error Connecting: %s" %(e))
 
-        return render_template('400.html'), 400
+        return render_template('400.html', variant=self.variant), 400
 
 
 @advertise(scopes=[], rate_limit=[1000, 3600 * 24])
