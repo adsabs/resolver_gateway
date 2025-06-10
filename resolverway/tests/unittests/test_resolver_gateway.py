@@ -82,6 +82,17 @@ class test_resolver(TestCase):
         r = LinkRequest('2018arXiv180303598K', 'ARXIV', '1803.03598').process_resolver_response(the_json, False)
         self.assertEqual(r[1], 302)
 
+    def test_articles_link_redirect(self):
+        """
+        Tests link rewriting for article link types.
+        :return:
+        """
+        the_json = {"service": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.", 
+                    "action": "redirect", "link": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.", 
+                    "link_type": "ESOURCE|ADS_SCAN"}
+        r = LinkRequest('1896ApJ.....4R.367.', 'ADS_SCAN').process_resolver_response(the_json, False)
+        self.assertEqual(r[1], 302)
+
     def test_action_error(self):
         """
         Test if unrecognizable action is returned

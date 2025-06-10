@@ -26,6 +26,8 @@ class LinkRequest(object):
     referrer = None
 
     re_ads_link = re.compile(r"^(/abs/[12]\d\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z\.]/abstract)$")
+    re_ads_articles_link = re.compile(r"^(.*/full/[12]\d\d\d[A-Za-z&\.]{5}[A-Za-z0-9\.]{9}[A-Z\.])$")
+
 
     def __init__(self, bibcode, link_type, url=None, id=None):
         self.bibcode = bibcode
@@ -70,6 +72,9 @@ class LinkRequest(object):
                     link_type = self.link_type
                 if log_the_click:
                     log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip, self.user_agent)
+                match = self.re_ads_articles_link.match(link)
+                if match:
+                    link = current_app.config.get("GATEWAY_ENV_URL", "https://dev.adsabs.harvard.edu/")+current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1]
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
