@@ -75,7 +75,10 @@ class LinkRequest(object):
                 match = self.re_ads_articles_link.match(link)
                 if match:
                     current_app.logger.info("Scan redirection to {} with referer: {}.".format(current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1], urllib.parse.urlparse(self.referrer).netloc))
-                    link = current_app.config.get("GATEWAY_ENV_URL", "https://dev.adsabs.harvard.edu/")+current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1]
+                    if urllib.parse.urlparse(self.referrer).netloc in current_app.config.get("valid_referrers",["dev.adsabs.harvard.edu"]):
+                        link = "https://" + urllib.parse.urlparse(self.referrer).netloc + "/" + current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1]
+                    else:
+                        link = current_app.config.get("GATEWAY_ENV_URL", "https://dev.adsabs.harvard.edu/") + current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1]
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
