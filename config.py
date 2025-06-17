@@ -26,3 +26,5 @@ GATEWAY_ADS_ABSTRACT_PAGE = '/abs/%s/abstract'
 GATEWAY_ENV_URL = "https://dev.adsabs.harvard.edu/"
 
 ARTICLES_MANIFEST_PATH = "scan/manifest"
+
+VALID_REFERRERS = ["dev.adsabs.harvard.edu"]
