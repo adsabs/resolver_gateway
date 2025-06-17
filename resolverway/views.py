@@ -74,6 +74,7 @@ class LinkRequest(object):
                     log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip, self.user_agent)
                 match = self.re_ads_articles_link.match(link)
                 if match:
+                    current_app.logger.info("Scan redirection to {} with referer: {}.".format(self.referrer, current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1]))
                     link = current_app.config.get("GATEWAY_ENV_URL", "https://dev.adsabs.harvard.edu/")+current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1]
                 return self.redirect(link)
 
