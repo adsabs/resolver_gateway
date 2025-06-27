@@ -5,3 +5,5 @@ python
 dump.rdb
 # Mac specific files
 .DS_Store
+.venv
+logs
