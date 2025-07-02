@@ -277,8 +277,10 @@ class LinkRequest(object):
                 # if no url then send request to resolver_service to get link(s)
                 if (self.id != None):
                     params = self.bibcode + '/' + self.link_type + ':' + self.id
-                else:
+                elif (self.link_type != None):
                     params = self.bibcode + '/' + self.link_type
+                else:
+                    params = self.bibcode
                 response = self.get_request_to_service(params)
                 # need to make sure the response is json
                 if (response.status_code == 200) and (response.headers.get('content-type') == 'application/json'):
