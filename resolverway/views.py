@@ -277,7 +277,7 @@ class LinkRequest(object):
                 # if no url then send request to resolver_service to get link(s)
                 if (self.id != None):
                     params = self.bibcode + '/' + self.link_type + ':' + self.id
-                elif (self.link_type != None):
+                elif (self.link_type != ''):
                     params = self.bibcode + '/' + self.link_type
                 else:
                     params = self.bibcode
