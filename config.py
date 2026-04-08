@@ -23,8 +23,8 @@ GATEWAY_SERVICE_REFERRED_DOMAIN = 'adsabs.harvard.edu'
 
 GATEWAY_ADS_ABSTRACT_PAGE = '/abs/%s/abstract'
 
-GATEWAY_ENV_URL = "https://dev.adsabs.harvard.edu/"
+GATEWAY_ENV_URL = "https://qa.adsabs.harvard.edu/"
 
 ARTICLES_MANIFEST_PATH = "scan/manifest"
 
-VALID_REFERRERS = ["dev.adsabs.harvard.edu"]
+VALID_REFERRERS = ["dev.adsabs.harvard.edu", "qa.adsabs.harvard.edu", "qa.scixplorer.org", "dev.scixplorer.org"]

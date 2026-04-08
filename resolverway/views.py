@@ -74,12 +74,13 @@ class LinkRequest(object):
                     log_request(self.bibcode, self.user_id, link_type, link, self.referrer, self.client_id, self.real_ip, self.user_agent)
                 match = self.re_ads_articles_link.match(link)
                 if match:
-                    current_app.logger.debug("Scan redirection to {} with referer: {}.".format(current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest")+link.split("full")[-1], urllib.parse.urlparse(self.referrer).netloc))
-                    if urllib.parse.urlparse(self.referrer).netloc in current_app.config.get("VALID_REFERRERS",["dev.adsabs.harvard.edu"]):
-                        link = "https://" + urllib.parse.urlparse(self.referrer).netloc + "/" + current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1]
+                    scan_path = current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1] + "?art=true"
+                    referrer_netloc = urllib.parse.urlparse(self.referrer).netloc if self.referrer else ""
+                    current_app.logger.debug("Scan redirection to {} with referer: {}.".format(scan_path, referrer_netloc))
+                    if referrer_netloc in current_app.config.get("VALID_REFERRERS", []):
+                        link = "https://" + referrer_netloc + "/" + scan_path
                     else:
-                        current_app.logger.info("Not redirecting articles request because referrer is not in valid referrers list.")
-                        #link = current_app.config.get("GATEWAY_ENV_URL", "https://dev.adsabs.harvard.edu/") + current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1]
+                        link = current_app.config.get("GATEWAY_ENV_URL", "https://qa.adsabs.harvard.edu/") + scan_path
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links

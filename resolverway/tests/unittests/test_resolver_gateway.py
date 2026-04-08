@@ -87,11 +87,13 @@ class test_resolver(TestCase):
         Tests link rewriting for article link types.
         :return:
         """
-        the_json = {"service": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.", 
-                    "action": "redirect", "link": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.", 
+        the_json = {"service": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.",
+                    "action": "redirect", "link": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.",
                     "link_type": "ESOURCE|ADS_SCAN"}
         r = LinkRequest('1896ApJ.....4R.367.', 'ADS_SCAN').process_resolver_response(the_json, False)
         self.assertEqual(r[1], 302)
+        self.assertIn('scan/manifest', r[0].headers.get('Location', ''))
+        self.assertIn('art=true', r[0].headers.get('Location', ''))
 
     def test_action_error(self):
         """
