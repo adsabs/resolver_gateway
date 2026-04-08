@@ -90,7 +90,9 @@ class test_resolver(TestCase):
         the_json = {"service": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.",
                     "action": "redirect", "link": "http://articles.adsabs.harvard.edu/full/1896ApJ.....4R.367.",
                     "link_type": "ESOURCE|ADS_SCAN"}
-        r = LinkRequest('1896ApJ.....4R.367.', 'ADS_SCAN').process_resolver_response(the_json, False)
+        link_request = LinkRequest('1896ApJ.....4R.367.', 'ADS_SCAN')
+        link_request.referrer = 'https://ui.adsabs.harvard.edu/abs/1896ApJ.....4R.367./abstract'
+        r = link_request.process_resolver_response(the_json, False)
         self.assertEqual(r[1], 302)
         self.assertIn('scan/manifest', r[0].headers.get('Location', ''))
         self.assertIn('art=true', r[0].headers.get('Location', ''))

@@ -77,10 +77,11 @@ class LinkRequest(object):
                     scan_path = current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1] + "?art=true"
                     referrer_netloc = urllib.parse.urlparse(self.referrer).netloc if self.referrer else ""
                     current_app.logger.debug("Scan redirection to {} with referer: {}.".format(scan_path, referrer_netloc))
-                    if referrer_netloc in current_app.config.get("VALID_REFERRERS", []):
+                    if referrer_netloc in current_app.config.get("VALID_REFERRERS", ["ui.adsabs.harvard.edu", "scixplorer.org"]):
                         link = "https://" + referrer_netloc + "/" + scan_path
                     else:
-                        link = current_app.config.get("GATEWAY_ENV_URL", "https://qa.adsabs.harvard.edu/") + scan_path
+                        current_app.logger.info("Not redirecting articles request because referrer is not in valid referrers list.")
+                        #link = current_app.config.get("GATEWAY_ENV_URL", "https://ui.adsabs.harvard.edu/") + current_app.config.get("ARTICLES_MANIFEST_PATH", "scan/manifest") + link.split("full")[-1] + "?art=true"
                 return self.redirect(link)
 
         # when action is to display, there are more than one link, so render template to display links
